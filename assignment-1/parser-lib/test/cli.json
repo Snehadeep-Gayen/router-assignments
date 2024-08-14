@@ -1,0 +1,30 @@
+[
+    {
+      "flag": "top",
+      "type": "string"
+    },
+    {
+      "flag": "conn",
+      "type": "string"
+    },
+    {
+      "flag": "rt",
+      "type": "string"
+    },
+    {
+      "flag": "ft",
+      "type": "string"
+    },
+    {
+      "flag": "path",
+      "type": "string"
+    },
+    {
+      "flag": "flag",
+      "type": "string"
+    },
+    {
+      "flag": "p",
+      "type": "int"
+    }
+]
