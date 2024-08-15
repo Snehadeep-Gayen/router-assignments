@@ -48,7 +48,6 @@ namespace Simulation {
 
     int Simulator::initialiseTopo(std::fstream& topofile) {
         LOGI(SIMULATOR_LOGMODULE, "initialiseTopo function entered.");
-        // Add logic to initialize topology from the file
         LOGI(SIMULATOR_LOGMODULE, "initialiseTopo function exited.");
         return 0;
     }

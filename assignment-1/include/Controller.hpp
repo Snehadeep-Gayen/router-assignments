@@ -20,7 +20,7 @@ namespace Network {
         public:
 
             // Use pessimistic to take the maximum bandwidth
-            Controller(bool pessimistic=false);
+            Controller(bool pessimistic=false) : pessimistic(pessimistic) {};
 
             // returns the uid of the node
             node addNode(void); 
@@ -43,20 +43,24 @@ namespace Network {
             // returns the connections
             std::vector<std::shared_ptr<Connection>> getConnections(void);
 
+            std::pair<int, int> getConnectionStats(void);
+
         private:
 
             class Link
             {
                 public:
                     Link(node src, node dst, float delay, float capacity)
-                        : src(src), dst(dst), delay(delay), capacity(capacity)
+                        : src(src), dst(dst), delay(delay), capacity(capacity), available(capacity), numAllocs(0)
                         {};
 
                     bool allocate(float reqd_capacity);
+                    bool deallocate(float removed_capacity);
 
                 private:
                     node src, dst;
                     float delay, capacity;
+                    float available;
                     int numAllocs;
             };
 
@@ -73,6 +77,8 @@ namespace Network {
                     void addForwardingTableEntry(node in, vcid vin, node out, vcid vout);
 
                     std::shared_ptr<Link> getNeighbouringLink(node nbr);
+
+                    ForwardingTable getForwardingTable(void) { return ft; }
                 
                 private:
 
@@ -82,6 +88,8 @@ namespace Network {
                     std::set<vcid> vcids;
             };
 
+            bool pessimistic;
+            int connectionsTried;
             std::vector<Node> nodes;
             std::vector<std::shared_ptr<Link>> links;
             std::vector<std::shared_ptr<Connection>> connections;

@@ -28,5 +28,10 @@ add_executable(NetworkSimulator ${SOURCE_FILES})
 # Enable warnings
 target_compile_options(NetworkSimulator PRIVATE -Wall -Wextra -Wpedantic)
 
+# add tests and enable testing
+add_subdirectory(tests)
+enable_testing()
+add_test(NAME RoutingTableTests COMMAND RoutingTableTests)
+
 # Copy the json file to the output directory
 file(COPY ${CMAKE_SOURCE_DIR}/src/params.json DESTINATION ${CMAKE_BINARY_DIR})

@@ -18,7 +18,7 @@ namespace Network{
     {
         public:
 
-            RoutingTable(node id);
+            RoutingTable(node id) : id(id) {};
 
             struct Entry{
                 node dst;
@@ -45,7 +45,7 @@ namespace Network{
     {
         public:
 
-            ForwardingTable(node id);
+            ForwardingTable(node id) : id(id) {};
 
             void addEntry(node in, vcid vin, node out, vcid vout);
 
