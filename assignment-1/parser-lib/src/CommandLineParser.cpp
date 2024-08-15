@@ -15,7 +15,7 @@ namespace CommandLine {
         // open the file
         std::ifstream file(filename);
         if (!file.is_open()) {
-            throw std::runtime_error("Could not open file"+filename);
+            throw std::runtime_error("Could not open file "+filename);
         }
         LOGI(CLP_LOGMODULE, "Successfully opened file: "+filename);
 

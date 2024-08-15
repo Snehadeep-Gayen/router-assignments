@@ -7,9 +7,12 @@
 namespace Network{
 
     using node = int;
+    using vcid = int;
     using link = int;
     using conn = int;
 
+#define ROUTINGTABLE_LOGMODULE          "RoutingTable"
+#define FORWARDTABLE_LOGMODULE          "ForwardTable"
     
     class RoutingTable
     {
@@ -30,7 +33,7 @@ namespace Network{
 
             float getCost(node dst);
 
-            friend ostream& operator<<(ostream &os, const RoutingTable& rt);
+            friend std::ostream& operator<<(std::ostream &os, const RoutingTable& rt);
 
         private:
 
@@ -42,11 +45,11 @@ namespace Network{
     {
         public:
 
-            Forwarding(node id);
+            ForwardingTable(node id);
 
             void addEntry(node in, vcid vin, node out, vcid vout);
 
-            friend ostream& operator<<(ostream& os, const ForwardingTable& ft);
+            friend std::ostream& operator<<(std::ostream& os, const ForwardingTable& ft);
         
         private:
 
@@ -70,6 +73,6 @@ namespace Network{
         std::vector<vcid> vcids;
         float pathcost;
 
-        friend ostream& operator<<(ostream& os, const struct Connection& con);
+        friend std::ostream& operator<<(std::ostream& os, const struct Connection& con);
     };
 }

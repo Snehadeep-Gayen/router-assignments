@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <set>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -9,6 +10,10 @@
 #include "NetworkDefs.hpp"
 
 namespace Network {
+
+#define CONTROLLER_LOGMODULE    "Controller"
+#define NODE_LOGMODULE          "Node"
+#define LINK_LOGMODULE          "Link"
 
     class Controller
     {
@@ -21,13 +26,22 @@ namespace Network {
             node addNode(void); 
 
             // returns the uid of the unidirectional link (negative if failed)
-            link addLink(int src, int dst, float delay, float capacity); 
+            link addLink(node src, int dst, float delay, float capacity); 
         
             void computeAPSP(void);
 
             // returns the connection ID (negative if connection failed)
             // required bandwidth is a tuple of (min, avg, max)
-            conn addConnection(int src, int dst, tuple<int,int,int> reqd_bw);
+            conn addConnection(node src, int dst, std::tuple<int,int,int> reqd_bw);
+
+            // returns the routing information
+            RoutingTable getRoutingTable(node nd);
+
+            // returns the forwarding table for the node
+            ForwardingTable getForwardingTable(node nd);
+
+            // returns the connections
+            std::vector<std::shared_ptr<Connection>> getConnections(void);
 
         private:
 
@@ -35,7 +49,8 @@ namespace Network {
             {
                 public:
                     Link(node src, node dst, float delay, float capacity)
-                        : src(src), dst(dst), delay(delay), capacity(capacity);
+                        : src(src), dst(dst), delay(delay), capacity(capacity)
+                        {};
 
                     bool allocate(float reqd_capacity);
 
@@ -49,15 +64,15 @@ namespace Network {
             {
                 public:
 
-                    Node(node id) : id(id), ft(id);
+                    Node(node id) : id(id), ft(id) {};
 
-                    void addNeighbour(node nid, shared_ptr<Link> link);
+                    void addNeighbour(node nid, std::shared_ptr<Link> link);
 
                     vcid generateVCID(void);
 
                     void addForwardingTableEntry(node in, vcid vin, node out, vcid vout);
 
-                    shared_ptr<Link> getNeighbouringLink(node nbr);
+                    std::shared_ptr<Link> getNeighbouringLink(node nbr);
                 
                 private:
 
@@ -69,7 +84,7 @@ namespace Network {
 
             std::vector<Node> nodes;
             std::vector<std::shared_ptr<Link>> links;
-            std::vector<Connection> connections;
+            std::vector<std::shared_ptr<Connection>> connections;
             std::vector<RoutingTable> rtables;
     };
 }

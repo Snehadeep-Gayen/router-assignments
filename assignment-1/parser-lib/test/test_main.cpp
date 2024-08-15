@@ -1,6 +1,7 @@
 #include <iostream>
 #include "CommandLineParser.hpp"
 #include "ArgumentType.hpp"
+#include <cassert>
 
 /*
 [

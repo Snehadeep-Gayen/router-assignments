@@ -71,3 +71,9 @@ Two design choices are possible here (FINALISED TO GO WITH KACC DESIGN):
       2. Propagation delay
       3. Source node ID
       4. Destination node ID
+
+## Plan for today
+
+1. Add Log modules for all the classes
+2. Simulator definition
+3. `main` function

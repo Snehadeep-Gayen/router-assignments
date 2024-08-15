@@ -15,14 +15,14 @@ namespace CommandLine {
     
     public:
 
-        std::unordered_map<std::string, Argument> parse(
+        static std::unordered_map<std::string, Argument> parse(
             int argc,
             char* argv[],
             std::string filename="cli.json");
 
     private:
 
-        std::unordered_map<std::string, Argument> parse(
+        static std::unordered_map<std::string, Argument> parse(
             int argc,
             char* argv[],
             std::vector<ArgumentInfo> argInfos);
