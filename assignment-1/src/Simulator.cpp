@@ -48,6 +48,22 @@ namespace Simulation {
 
     int Simulator::initialiseTopo(std::fstream& topofile) {
         LOGI(SIMULATOR_LOGMODULE, "initialiseTopo function entered.");
+
+        // check from file 
+        int nodecnt, edgecnt;
+        topofile >> nodecnt >> edgecnt;
+
+        int src, dst;
+        float delay, cost;
+
+        while(edgecnt--)
+        {
+            topofile >> src >> dst >> delay >> cost;
+            // add the link
+            control.addLink();
+        }
+
+
         LOGI(SIMULATOR_LOGMODULE, "initialiseTopo function exited.");
         return 0;
     }

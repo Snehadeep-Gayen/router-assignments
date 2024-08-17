@@ -29,7 +29,7 @@ namespace Network {
 
         return links.size() - 1;
     }
-
+    
     void Controller::computeAPSP(void) 
     {
         std::stringstream ss;
@@ -60,12 +60,13 @@ namespace Network {
         std::vector<vcid> vcids;
 
         // every link in the path should have the required capacity
-        for (size_t i = 0; i < path.size() - 1; i++) {
-
+        for (size_t i = 0; i < path.size() - 1; i++) 
+        {
             std::shared_ptr<Link> link = nodes[path[i]].getNeighbouringLink(path[i+1]);
 
             // check if the link has the required capacity
-            if(!link->allocate(bw)) {
+            if(!link->allocate(bw)) 
+            {
                 Logging::LOGE(CONTROLLER_LOGMODULE, "Connection failed due to insufficient bandwidth.");
                 // deallocate the bandwidth allocated so far
                 for (size_t j = 0; j < i; j++)
