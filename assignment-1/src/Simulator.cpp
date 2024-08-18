@@ -18,6 +18,11 @@ namespace Simulation {
         }
         topofile.close();
 
+        if (compute() != 0) {
+            LOGI(SIMULATOR_LOGMODULE, "Computation failed.");
+            return -1;
+        }
+
         std::fstream connfile(conf.connfilename, std::ios::in);
         if (!connfile.is_open()) {
             LOGI(SIMULATOR_LOGMODULE, "Failed to open connections file.");
@@ -28,11 +33,6 @@ namespace Simulation {
             return -1;
         }
         connfile.close();
-
-        if (compute() != 0) {
-            LOGI(SIMULATOR_LOGMODULE, "Computation failed.");
-            return -1;
-        }
 
         std::fstream rtabfile(conf.rtabfilename, std::ios::out);
         std::fstream fwdfilename(conf.fwdfilename, std::ios::out);
@@ -46,23 +46,26 @@ namespace Simulation {
         return 0;
     }
 
-    int Simulator::initialiseTopo(std::fstream& topofile) {
+    int Simulator::initialiseTopo(std::fstream& topofile) 
+    {
         LOGI(SIMULATOR_LOGMODULE, "initialiseTopo function entered.");
 
         // check from file 
-        int nodecnt, edgecnt;
-        topofile >> nodecnt >> edgecnt;
+        int edgecnt;
+        topofile >> (this->noNodes) >> edgecnt;
+
+        for(int i=0; i<noNodes; i++)
+            control.addNode();
 
         int src, dst;
-        float delay, cost;
+        float delay, capacity;
 
         while(edgecnt--)
         {
-            topofile >> src >> dst >> delay >> cost;
+            topofile >> src >> dst >> delay >> capacity;
             // add the link
-            control.addLink();
+            control.addLink(src, dst, delay, capacity, conf.hop ? 1 : delay);
         }
-
 
         LOGI(SIMULATOR_LOGMODULE, "initialiseTopo function exited.");
         return 0;
@@ -70,21 +73,59 @@ namespace Simulation {
 
     int Simulator::compute(void) {
         LOGI(SIMULATOR_LOGMODULE, "compute function entered.");
-        // Add logic to perform computations
+        control.computeKAPSP();
         LOGI(SIMULATOR_LOGMODULE, "compute function exited.");
         return 0;
     }
 
     int Simulator::addConnections(std::fstream& connfile) {
-        LOGI(SIMULATOR_LOGMODULE, "addConnections function entered.");
-        // Add logic to read and add connections from the file
+        LOGI(SIMULATOR_LOGMODULE, "addConnections function entered.");\
+        int noConnections;
+        connfile >> noConnections;
+        int src, dst;
+        float min_bw, avg_bw, max_bw;
+        while(noConnections--)
+        {
+            connfile >> src >> dst >> min_bw >> avg_bw >> max_bw;
+            control.addConnection(src, dst, std::tuple<float, float, float>{min_bw, avg_bw, max_bw});
+        }
         LOGI(SIMULATOR_LOGMODULE, "addConnections function exited.");
         return 0;
     }
 
-    int Simulator::writeOutputs(std::fstream& rtabfile, std::fstream& fwdfilename, std::fstream& pathsfile) {
+    void printSeparator(std::ostream& os)
+    {
+        for(int i=0; i<60; i++)
+            os << "=";
+        os << "\n";
+    }
+
+    int Simulator::writeOutputs(std::fstream& rtabfile, std::fstream& fwdfile, std::fstream& pathsfile) 
+    {
         LOGI(SIMULATOR_LOGMODULE, "writeOutputs function entered.");
-        // Add logic to write the output files
+
+        // print the routing tables
+        for(int i=0; i<noNodes; i++)
+        {
+            printSeparator(rtabfile);
+            rtabfile << control.getRoutingTable(i);
+            printSeparator(rtabfile);
+            rtabfile << "Second Path ";
+            rtabfile << control.getSecondRoutingTable(i);
+            printSeparator(rtabfile);
+        }
+
+        // print the forwarding tables
+        for(int i=0; i<noNodes; i++)
+            fwdfile << control.getForwardingTable(i);
+    
+        // print the connections 
+        const auto& stats = control.getConnectionStats();
+        pathsfile << stats.first << " " << stats.second << "\n";
+        const auto& connections = control.getConnections();
+        for(const auto& connection : connections)
+            pathsfile << *connection;
+
         LOGI(SIMULATOR_LOGMODULE, "writeOutputs function exited.");
         return 0;
     }

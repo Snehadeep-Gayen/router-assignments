@@ -34,5 +34,6 @@ namespace Simulation{
 
             struct Config conf;
             Network::Controller control;
+            int noNodes;
     };
 }

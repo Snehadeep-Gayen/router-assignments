@@ -1,15 +1,18 @@
 #include "NetworkDefs.hpp"
 #include "Logging.hpp"
 #include <sstream>
+#include <cassert>
 
 namespace Network {
 
     // RoutingTable class methods
 
+
     void RoutingTable::addEntry(node dst, Entry e) {
         assert(dst == e.dst);
         assert(dst == e.path.back());
         entry[dst]  = e;
+        Logging::LOGI(ROUTINGTABLE_LOGMODULE, std::string("Added Routing table entry. Now size of routig table is ") + std::to_string(entry.size()));
     }
 
     std::vector<node> RoutingTable::getPath(node dst) {
@@ -20,9 +23,16 @@ namespace Network {
         return entry.at(dst).cost;
     }
 
-    std::ostream& operator<<(std::ostream &os, const RoutingTable& rt) {
+
+    float RoutingTable::getDelay(node dst) {
+        return entry.at(dst).delay;
+    }
+
+    std::ostream& operator<<(std::ostream &os, const RoutingTable& rt) 
+    {
         os << "Routing Table for node " << rt.id << std::endl;
-        for (const auto& [dst, e] : rt.entry) {
+        for (const auto& [dst, e] : rt.entry) 
+        {
             os << dst << ", ";
             for (auto n : e.path) {
                 os << n;
@@ -43,17 +53,19 @@ namespace Network {
         entries.push_back(e);
     }
 
-    std::ostream& operator<<(std::ostream& os, const ForwardingTable& ft) {
-        os << ft.id << ", ";
-        for (const auto& e : ft.entries) {
-            os << e.in << ", " << e.vin << ", " << e.out << ", " << e.vout << std::endl;
-        }
+    std::ostream& operator<<(std::ostream& os, const ForwardingTable& ft) 
+    {
+        for (const auto& e : ft.entries)
+            os << ft.id << ", " << e.in << ", " << e.vin << ", " << e.out << ", " << e.vout << std::endl;
         return os;
     }
 
     // Connection struct methods
 
-    std::ostream& operator<<(std::ostream& os, const Connection& con) {
+    std::ostream& operator<<(std::ostream& os, const Connection& con) 
+    {
+        if(con.path.empty())
+            return os;
         os << con.id << ", " << con.src << ", " << con.dst << ", ";
         for (auto n : con.path) {
             os << n;

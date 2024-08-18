@@ -32,6 +32,7 @@ namespace Network{
             std::vector<node> getPath(node dst);
 
             float getCost(node dst);
+            float getDelay(node dst);
 
             friend std::ostream& operator<<(std::ostream &os, const RoutingTable& rt);
 
