@@ -58,7 +58,6 @@ namespace Network {
             };
         };
 
-        const int KSHORTESTPATH = 2;
         std::priority_queue<Qelem, std::vector<Qelem>, QComp> pq;
 
         RoutingTable firstpath(start_node);
@@ -158,7 +157,7 @@ namespace Network {
         ss << "computeAPSP function entered.";
         Logging::LOGI(CONTROLLER_LOGMODULE, ss.str());
 
-        for(int i=0; i<nodes.size(); i++)
+        for(size_t i=0; i<nodes.size(); i++)
             computeKSSSP(i);
 
         Logging::LOGI(CONTROLLER_LOGMODULE, "computeAPSP function exited.");
@@ -238,7 +237,6 @@ namespace Network {
         catch(const std::out_of_range&)
         {
             Logging::LOGI(CONTROLLER_LOGMODULE, "Could not find path from src to destination");
-            return -1;
         }
 
         Logging::LOGI(CONTROLLER_LOGMODULE, "First shortest path cannot be used");
@@ -246,8 +244,8 @@ namespace Network {
 
         try
         {
-            path = rtables[src].getPath(dst);
-            cost = rtables[src].getCost(dst);
+            path = rtables_snd[src].getPath(dst);
+            cost = rtables_snd[src].getCost(dst);
 
             return __addConnection(src, dst, bw, path, cost);
         }
@@ -313,7 +311,7 @@ namespace Network {
     vcid Controller::Node::generateVCID(void) 
     {
         // generate a random number and check if it is already in use
-        vcid v = rand();
+        vcid v = rand()%(1<<VCID_BITS);
         while(vcids.find(v) != vcids.end())
             v = rand();
         vcids.insert(v);

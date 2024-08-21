@@ -9,7 +9,10 @@
 
 #include "NetworkDefs.hpp"
 
+
 namespace Network {
+
+const int VCID_BITS = 16;
 
 #define CONTROLLER_LOGMODULE    "Controller"
 #define NODE_LOGMODULE          "Node"
@@ -99,7 +102,6 @@ namespace Network {
     
 
             bool pessimistic;
-            bool hop;
             int connectionsTried = 0;
             std::vector<Node> nodes;
             std::vector<std::shared_ptr<Link>> links;
