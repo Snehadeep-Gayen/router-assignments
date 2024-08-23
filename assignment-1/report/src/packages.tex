@@ -1,0 +1,42 @@
+\usepackage[utf8]{inputenc} % Kodierung
+\usepackage[english]{babel} % Sprache
+\usepackage{graphicx} % immer benötigt für das Einbinden von Graphiken
+\usepackage{parskip} % Für den Abstand zwischen 2 Absätzen.
+\setlength{\parskip}{12pt plus80pt minus10pt} % Genaue Einstellung von parskip
+\usepackage{csquotes} % Für ordentlichen Anführungszeichen
+\usepackage[citestyle=numeric-comp,
+sorting=none]{biblatex} % bibtex backend für Literaturverzeichnis
+\usepackage{xcolor} %Paket für farbige Texte
+\usepackage{setspace} %Paket fuer groessere Abstaende, zB fuer das Titelblatt
+\addbibresource{literatur/bibliography.bib} % Einbinden der Literatur
+\usepackage{url}
+\usepackage[activate={true,nocompatibility},
+	final,
+	tracking=true,
+	kerning=true,
+	expansion=true,
+	spacing=true,
+	factor=1050,
+	stretch=25,
+	shrink=10]{microtype} % Für die Feineinstellung der Zeichensetzung.
+\usepackage{booktabs}
+\usepackage{fancyvrb}
+\usepackage[hidelinks]{hyperref} % Klickbare aber nicht markierte Links im PDF
+\usepackage{fancyhdr} % Für schönere Kopf-/Fußzeilen und Fußnoten.
+\usepackage[right=2.5 cm, left=2.5 cm, top=2.5 cm, bottom=2.5 cm]{geometry} % Seitenränder
+\usepackage[allow-number-unit-breaks=true]{siunitx}
+
+%% ADDED BY SNEHADEEP %%
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{siunitx}
+% \sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
+\usepackage{amsmath}
+\usepackage{placeins}
+\usepackage{amssymb}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+\newcommand\norm[1]{\lVert#1\rVert}
+\DeclareMathOperator{\sign}{sign}
