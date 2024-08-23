@@ -1,0 +1,66 @@
+connections_100_ARPANET-Topo-0.001-0.001-0.01.txt,1.00
+connections_100_ARPANET-Topo-0.001-0.001-0.01.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.002-0.02.txt,1.00
+connections_100_ARPANET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.003-0.03.txt,1.00
+connections_100_ARPANET-Topo-0.001-0.003-0.03.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.004-0.04.txt,1.00
+connections_100_ARPANET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.005-0.05.txt,1.00
+connections_100_ARPANET-Topo-0.001-0.005-0.05.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.006-0.06.txt,0.97
+connections_100_ARPANET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.007-0.07.txt,0.94
+connections_100_ARPANET-Topo-0.001-0.007-0.07.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.008-0.08.txt,0.94
+connections_100_ARPANET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.009-0.09.txt,0.90
+connections_100_ARPANET-Topo-0.001-0.009-0.09.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.01-0.1.txt,0.90
+connections_100_ARPANET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.064-0.064-0.064.txt,0.99
+connections_100_ARPANET-Topo-0.064-0.064-0.064.txt, dist, optimistic, 0.99
+connections_200_ARPANET-Topo-0.001-0.001-0.01.txt,1.00
+connections_200_ARPANET-Topo-0.001-0.001-0.01.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.002-0.02.txt,1.00
+connections_200_ARPANET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.003-0.03.txt,1.00
+connections_200_ARPANET-Topo-0.001-0.003-0.03.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.004-0.04.txt,0.91
+connections_200_ARPANET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.005-0.05.txt,0.89
+connections_200_ARPANET-Topo-0.001-0.005-0.05.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.006-0.06.txt,0.83
+connections_200_ARPANET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.007-0.07.txt,0.77
+connections_200_ARPANET-Topo-0.001-0.007-0.07.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.008-0.08.txt,0.76
+connections_200_ARPANET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 0.98
+connections_200_ARPANET-Topo-0.001-0.009-0.09.txt,0.77
+connections_200_ARPANET-Topo-0.001-0.009-0.09.txt, dist, optimistic, 0.94
+connections_200_ARPANET-Topo-0.001-0.01-0.1.txt,0.68
+connections_200_ARPANET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 0.90
+connections_200_ARPANET-Topo-0.064-0.064-0.064.txt,0.80
+connections_200_ARPANET-Topo-0.064-0.064-0.064.txt, dist, optimistic, 0.80
+connections_300_ARPANET-Topo-0.001-0.001-0.01.txt,1.00
+connections_300_ARPANET-Topo-0.001-0.001-0.01.txt, dist, optimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.002-0.02.txt,1.00
+connections_300_ARPANET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.003-0.03.txt,0.92
+connections_300_ARPANET-Topo-0.001-0.003-0.03.txt, dist, optimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.004-0.04.txt,0.82
+connections_300_ARPANET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.005-0.05.txt,0.76
+connections_300_ARPANET-Topo-0.001-0.005-0.05.txt, dist, optimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.006-0.06.txt,0.70
+connections_300_ARPANET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 0.97
+connections_300_ARPANET-Topo-0.001-0.007-0.07.txt,0.69
+connections_300_ARPANET-Topo-0.001-0.007-0.07.txt, dist, optimistic, 0.91
+connections_300_ARPANET-Topo-0.001-0.008-0.08.txt,0.63
+connections_300_ARPANET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 0.87
+connections_300_ARPANET-Topo-0.001-0.009-0.09.txt,0.63
+connections_300_ARPANET-Topo-0.001-0.009-0.09.txt, dist, optimistic, 0.85
+connections_300_ARPANET-Topo-0.001-0.01-0.1.txt,0.60
+connections_300_ARPANET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 0.84
+connections_300_ARPANET-Topo-0.064-0.064-0.064.txt,0.71
+connections_300_ARPANET-Topo-0.064-0.064-0.064.txt, dist, optimistic, 0.71
