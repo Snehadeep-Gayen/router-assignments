@@ -2,7 +2,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-data = np.array([[0.99, 0.80, 0.71], [0.70, 0.49, 0.40]])
+data = np.array([[0.97,0.87,0.73], [0.98,0.73,0.65]])
 labels = ['ARPANET', 'NFSNET']
 x = np.arange(len(labels))
 width = 0.35

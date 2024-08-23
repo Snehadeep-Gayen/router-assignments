@@ -65,6 +65,8 @@ namespace Simulation {
             topofile >> src >> dst >> delay >> capacity;
             // add the link
             control.addLink(src, dst, delay, capacity, conf.hop ? 1 : delay);
+            // links are bidirectional, so add the reverse link also
+            control.addLink(dst, src, delay, capacity, conf.hop ? 1 : delay);
         }
 
         LOGI(SIMULATOR_LOGMODULE, "initialiseTopo function exited.");

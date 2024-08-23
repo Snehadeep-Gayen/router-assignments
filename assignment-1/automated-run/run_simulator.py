@@ -13,7 +13,7 @@ params = ['-top', 'topology.txt', '-conn', 'connections.txt', '-rt', 'c', '-ft',
 
 def main():
 
-    os.system(f'cp {TOPO_FOLDER}/NSFNET-Topo.txt {BINARY_FOLDER}/topology.txt')
+    os.system(f'cp {TOPO_FOLDER}/ARPANET-Topo.txt {BINARY_FOLDER}/topology.txt')
 
     # get all the files from the connection folder
     connection_files = os.listdir(CONNECTION_FOLDER)

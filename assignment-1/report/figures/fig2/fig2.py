@@ -1,38 +1,87 @@
 import matplotlib.pyplot as plt
-import pandas as pd
+import csv
+import numpy as np
 
-# Data for ARPANET and NFSNET
-data = {
-    'topology': ['ARPANET', 'ARPANET', 'ARPANET', 'ARPANET', 'ARPANET', 'ARPANET', 'NFSNET', 'NFSNET', 'NFSNET', 'NFSNET', 'NFSNET', 'NFSNET'],
-    'type': ['opti', 'opti', 'opti', 'pessi', 'pessi', 'pessi', 'opti', 'opti', 'opti', 'pessi', 'pessi', 'pessi'],
-    'num_connections': [100, 200, 300, 100, 200, 300, 100, 200, 300, 100, 200, 300],
-    2: [1.00, 1.00, 1.00, 1.00, 1.00, 0.99, 1.00, 1.00, 1.00, 1.00, 0.81, 0.77],
-    4: [1.00, 1.00, 1.00, 1.00, 0.96, 0.82, 1.00, 0.82, 0.68, 0.78, 0.60, 0.50],
-    6: [1.00, 1.00, 0.95, 1.00, 0.86, 0.69, 0.98, 0.73, 0.68, 0.77, 0.55, 0.46],
-    8: [1.00, 0.97, 0.88, 0.94, 0.78, 0.64, 0.87, 0.70, 0.61, 0.71, 0.45, 0.38],
-    10: [1.00, 1.00, 0.83, 0.90, 0.79, 0.58, 0.74, 0.59, 0.52, 0.57, 0.36, 0.30],
-    12: [1.00, 0.87, 0.75, 0.80, 0.67, 0.56, 0.70, 0.59, 0.43, 0.48, 0.39, 0.27],
-    14: [0.96, 0.83, 0.66, 0.77, 0.59, 0.47, 0.63, 0.53, 0.40, 0.43, 0.35, 0.26],
-    16: [0.96, 0.82, 0.70, 0.71, 0.57, 0.46, 0.75, 0.52, 0.37, 0.54, 0.33, 0.25],
-    18: [0.92, 0.72, 0.62, 0.67, 0.47, 0.43, 0.72, 0.43, 0.37, 0.47, 0.28, 0.21],
-    20: [0.95, 0.74, 0.62, 0.73, 0.54, 0.40, 0.66, 0.45, 0.37, 0.46, 0.28, 0.23]
-}
+# Read the data from the file
+arpanet_100_opti = []
+arpanet_100_pessi = []
+arpanet_200_opti = []
+arpanet_200_pessi = []
+arpanet_300_opti = []
+arpanet_300_pessi = []
 
-# Convert data to pandas DataFrame
-df = pd.DataFrame(data)
+nsfnet_100_opti = []
+nsfnet_100_pessi = []
+nsfnet_200_opti = []
+nsfnet_200_pessi = []
+nsfnet_300_opti = []
+nsfnet_300_pessi = []
+
+with open('./fig2.csv', 'r') as file:
+
+    reader = csv.reader(file)
+
+    for row in reader:
+        if row[0] == 'ARPANET':
+            if row[1] == '100':
+                if row[2] == 'optimistic':
+                    arpanet_100_opti = list(map(float, row[3:]))
+                else:
+                    arpanet_100_pessi = list(map(float, row[3:]))
+            elif row[1] == '200':
+                if row[2] == 'optimistic':
+                    arpanet_200_opti = list(map(float, row[3:]))
+                else:
+                    arpanet_200_pessi = list(map(float, row[3:]))
+            else:
+                if row[2] == 'optimistic':
+                    arpanet_300_opti = list(map(float, row[3:]))
+                else:
+                    arpanet_300_pessi = list(map(float, row[3:]))
+        else:
+            if row[1] == '100':
+                if row[2] == 'optimistic':
+                    nsfnet_100_opti = list(map(float, row[3:]))
+                else:
+                    nsfnet_100_pessi = list(map(float, row[3:]))
+            elif row[1] == '200':
+                if row[2] == 'optimistic':
+                    nsfnet_200_opti = list(map(float, row[3:]))
+                else:
+                    nsfnet_200_pessi = list(map(float, row[3:]))
+            else:
+                if row[2] == 'optimistic':
+                    nsfnet_300_opti = list(map(float, row[3:]))
+                else:
+                    nsfnet_300_pessi = list(map(float, row[3:]))
+
+# convert to numpy arrays
+arpanet_100_opti = np.array(arpanet_100_opti)
+arpanet_100_pessi = np.array(arpanet_100_pessi)
+arpanet_200_opti = np.array(arpanet_200_opti)
+arpanet_200_pessi = np.array(arpanet_200_pessi)
+arpanet_300_opti = np.array(arpanet_300_opti)
+arpanet_300_pessi = np.array(arpanet_300_pessi)
+
+nsfnet_100_opti = np.array(nsfnet_100_opti)
+nsfnet_100_pessi = np.array(nsfnet_100_pessi)
+nsfnet_200_opti = np.array(nsfnet_200_opti)
+nsfnet_200_pessi = np.array(nsfnet_200_pessi)
+nsfnet_300_opti = np.array(nsfnet_300_opti)
+nsfnet_300_pessi = np.array(nsfnet_300_pessi)
 
 # Set up the figure and subplots
 fig, axs = plt.subplots(1, 2, figsize=(14, 6))
 
 # Plot Optimistic Results
-for connections in df[(df['type'] == 'opti')]['num_connections'].unique():
-    subset = df[(df['type'] == 'opti') & (df['num_connections'] == connections)]
-    axs[0].plot(subset.columns[3:], 1-subset.iloc[0, 3:], marker='o', label=f"{subset['topology'].values[0]} - {connections} connections")
+axs[0].plot(range(2, 21, 2), 1-arpanet_100_opti, marker='o', label="ARPANET - 100 connections")
+axs[0].plot(range(2, 21, 2), 1-arpanet_200_opti, marker='o', label="ARPANET - 200 connections")
+axs[0].plot(range(2, 21, 2), 1-arpanet_300_opti, marker='o', label="ARPANET - 300 connections")
 
 # Plot Pessimistic Results
-for connections in df[(df['type'] == 'pessi')]['num_connections'].unique():
-    subset = df[(df['type'] == 'pessi') & (df['num_connections'] == connections)]
-    axs[1].plot(subset.columns[3:], 1-subset.iloc[0, 3:], marker='o', label=f"{subset['topology'].values[0]} - {connections} connections")
+axs[1].plot(range(2, 21, 2), 1-arpanet_100_pessi, marker='o', label="ARPANET - 100 connections")
+axs[1].plot(range(2, 21, 2), 1-arpanet_200_pessi, marker='o', label="ARPANET - 200 connections")
+axs[1].plot(range(2, 21, 2), 1-arpanet_300_pessi, marker='o', label="ARPANET - 300 connections")
 
 # Labels and Titles
 axs[0].set_title("Optimistic Constraint", fontsize=20)
@@ -68,14 +117,14 @@ plt.clf()
 fig, axs = plt.subplots(1, 2, figsize=(14, 6))
 
 # Plot Optimistic Results
-for connections in df[(df['topology'] == 'NFSNET') & (df['type'] == 'opti')]['num_connections'].unique():
-    subset = df[(df['topology'] == 'NFSNET') & (df['type'] == 'opti') & (df['num_connections'] == connections)]
-    axs[0].plot(subset.columns[3:], 1-subset.iloc[0, 3:], marker='o', label=f"{subset['topology'].values[0]} - {connections} connections")
+axs[0].plot(range(2, 21, 2), 1-nsfnet_100_opti, marker='o', label="NFSNET - 100 connections")
+axs[0].plot(range(2, 21, 2), 1-nsfnet_200_opti, marker='o', label="NFSNET - 200 connections")
+axs[0].plot(range(2, 21, 2), 1-nsfnet_300_opti, marker='o', label="NFSNET - 300 connections")
 
 # Plot Pessimistic Results
-for connections in df[(df['topology'] == 'NFSNET') & (df['type'] == 'pessi')]['num_connections'].unique():
-    subset = df[(df['topology'] == 'NFSNET') & (df['type'] == 'pessi') & (df['num_connections'] == connections)]
-    axs[1].plot(subset.columns[3:], 1-subset.iloc[0, 3:], marker='o', label=f"{subset['topology'].values[0]} - {connections} connections")
+axs[1].plot(range(2, 21, 2), 1-nsfnet_100_pessi, marker='o', label="NFSNET - 100 connections")
+axs[1].plot(range(2, 21, 2), 1-nsfnet_200_pessi, marker='o', label="NFSNET - 200 connections")
+axs[1].plot(range(2, 21, 2), 1-nsfnet_300_pessi, marker='o', label="NFSNET - 300 connections")
 
 # Labels and Titles
 axs[0].set_title("Optimistic Constraint", fontsize=20)
