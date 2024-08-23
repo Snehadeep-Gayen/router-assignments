@@ -1,0 +1,5 @@
+topology,type,2,4,6,8,10,12,14,16,18,20
+ARPANET,opti,
+ARPANET,pessi,
+NFSNET,opti,
+ARPANET,pessi
