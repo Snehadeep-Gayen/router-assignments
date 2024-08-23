@@ -2,14 +2,14 @@
 % Begin with describing virtual circuit switching
 \begin{section}{Virtual Circuit Switching}
 
-Virtual Circuit Switching is a method of switching in which a dedicated path is established between the source and destination before the actual data transfer begins. This path is called a virtual circuit. The virtual circuit is a logical path that is established between the source and destination. The virtual circuit is established by sending a setup message from the source to the destination. The destination sends back an acknowledgment message to the source. Once the virtual circuit is established, the data transfer begins. The data transfer takes place over the virtual circuit. The virtual circuit is torn down after the data transfer is complete. Virtual Circuit Switching is used in ATM (Asynchronous Transfer Mode) networks.
+Virtual Circuit Switching is a packet switching methodology in which a dedicated path is established between the source and destination before the actual data transfer begins. All packets on a Virtual-Circuit Switched network are routed using link-specific labels called Virtual Circuit IDs (VCIDs). During the path setup, these forwarding tables are setup in each of the intermediate routers using these VCIDs. When the data transfer is deemed complete, the virtual circuit is torn down, and the forwarding table entries along the path are invalidated.
 
 \end{section}
 
 
 \begin{section}{Experiment}
 
-    To compare the probability of admission of a connection in a virtual circuit switched network in two different topologies under different traffic loads, constraints (pessimistic and optimistic), and routing metrics.
+    To compare the probability of blocking of a connection in a virtual circuit switched network in two different topologies under different traffic loads, constraints (pessimistic and optimistic), and routing metrics.
 
 \end{section}
 
@@ -18,7 +18,7 @@ Virtual Circuit Switching is a method of switching in which a dedicated path is 
     \begin{subsection}{Topology}
         Two topologies are considered for the experiment:
         \begin{enumerate}
-            \item NFSNET Topology : A network with 12 nodes and 15 links.
+            \item NSFNET Topology : A network with 12 nodes and 15 links.
             \item ARPANET Topology : A network with 20 nodes and 32 links.
         \end{enumerate}
     \end{subsection}
@@ -33,7 +33,7 @@ Virtual Circuit Switching is a method of switching in which a dedicated path is 
         \end{enumerate}
         \item Connections are chosen randomly from the set of reachable pairs of nodes. In this case the connections can be denied only if bandwidth is insufficient.
     \end{enumerate}
-    Since we are only interested in the probability of admission and not the restrictions of the topology, we will consider the second type of connections.
+    Since we are only interested in the probability of blocking and not the restrictions of the topology, we will consider the second type of connections.
     \end{subsection}
 
     \begin{subsection}{Traffic Load}
@@ -52,7 +52,7 @@ Virtual Circuit Switching is a method of switching in which a dedicated path is 
         \end{enumerate}
     \end{subsection}
 
-    \begin{subsection}{Routing Algortithm}
+    \begin{subsection}{Routing Algorithm}
         Two types of routing metrics are considered for computing the shortest and second shortest path: (1) Hop count and (2) Propagation Delay.
     \end{subsection}
 
@@ -60,21 +60,40 @@ Virtual Circuit Switching is a method of switching in which a dedicated path is 
 
 \begin{section}{Results}
 
-It was observed that the admission probability is the same for both the routing metrics, Hop count and Propagation Delay. The following plots and observations hold for both these metrics. \\
+It was observed that the blocking probability is the same for both the routing metrics, Hop count and Propagation Delay. The following plots and observations hold for both these metrics. \\
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/fig1/fig1.png}
-    \caption{Admission Probability with Constant 64kbps Traffic Load \protect\footnotemark}
+    \caption{Blocking Probability with Constant 64kbps Traffic Load \protect\footnotemark}
     \label{fig:fig1}
 \end{figure}
 \footnotetext{Since the traffic is constant, both optimistic and pessimistic constraints give the same results.}
 
-As is expected, we see that the admission probability decreases as the number of connections increase. This is because the links start getting saturated and available bandwidth becomes insufficient. \\
-Also, since the ARPANET topology has more nodes and links than NFSNET, the number of connections needed to saturate most of the links in ARPANET is higher than that for NFSNET. Thus, we see that for the same number of connections, ARPANET has a higher admission probability. \\ 
+As is expected, we see that the blocking probability increases as the number of connections increase. This is because the links start getting saturated and available bandwidth becomes insufficient. \\
+Also, since the ARPANET topology has more nodes and links than NSFNET, the number of connections needed to saturate most of the links in ARPANET is higher than that for NSFNET. Thus, we see that for the same number of connections, ARPANET has a lower blocking probability. \\ 
 
 
 \pagebreak
 
+% make a figure with two subfigures side by side
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig2/fig2a.png}
+    \caption{Blocking Probability with Bursty Traffic Load for ARPANET}
+    \label{fig:fig2a}
+\end{figure}
+
+
+% make a figure with two subfigures side by side
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig2/fig2b.png}
+    \caption{Blocking Probability with Bursty Traffic Load for NSFNET}
+    \label{fig:fig2b}
+\end{figure}
+
+The blocking probabilities of the two topologies are shown in Figures \ref{fig:fig2a} and \ref{fig:fig2b}. We see that the blocking probability increases as the traffic load increases. Further the increase is more profound in the case of pessimistic constraint as it assumes that the whole bandwidth is consumed by the connection, whereas the optimistic constraint uses a better estimate. \\ \\
+Also, as discussed before, the blocking probabilities are higher for more number of connections as the connections compete for the same links in the topology. Further the blocking probability is higher for NSFNET than ARPANET for the same number of connections as ARPANET has more nodes and links. \\ 
 
 \end{section}
