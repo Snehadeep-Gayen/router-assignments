@@ -17,7 +17,7 @@ namespace Simulation{
 
         public:
             Simulator(struct Config&& conf) : conf(conf) {};
-            int Start(void);
+            int Start(void) { return 0; };
 
         private:
 

@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
+
 project(ParserLibrary)
 
 # Set C++ standard to C++17

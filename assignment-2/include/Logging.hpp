@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <ctime>
 
+#define STR std::to_string
+
 namespace Logging{
 
     inline void LOGX(std::string level, std::string module, std::string message) 

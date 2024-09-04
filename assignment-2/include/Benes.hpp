@@ -15,7 +15,7 @@ class Benes : public Switch
 
         // routes the packets from input ports 0, 1, 2, ... vec.size() to the respective output ports
         // returns a true/false for each packet indicating whether it was dropped or not
-        std::vector<bool> switchPackets(std::vector<int> outputPorts);
+        std::vector<bool> switchPackets(const std::vector<int>& outputPorts);
 
         // returns the configuration (cross or through for each 2x2 switch in the network
         // true means cross, false means
