@@ -1,5 +1,4 @@
 #include "Omega.hpp"
-#include "Switch.hpp"
 #include <cassert>
 
 namespace Switch{

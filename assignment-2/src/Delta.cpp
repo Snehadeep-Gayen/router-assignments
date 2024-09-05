@@ -1,6 +1,5 @@
 #include "Delta.hpp"
 #include "Logging.hpp"
-#include "Switch.hpp"
 #include <cassert>
 
 namespace Switch{
