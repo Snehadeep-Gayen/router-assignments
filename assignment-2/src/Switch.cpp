@@ -72,4 +72,27 @@ namespace Switch{
         return os;
     } 
 
+
+    void Switch::Shuffle(std::vector<int>& outputPorts)
+    {
+        std::stringstream portsDebug;
+        for(auto i : outputPorts)
+            portsDebug << i << " hehe ";
+        Logging::LOGI(SWITCH_LOGMODULE, "Input packets before shuffle " + portsDebug.str());
+
+        std::vector<int> shuffledPorts(numPorts, -1);
+        for(int oldPort=0; oldPort<numPorts; oldPort++)
+        {
+            int newPort = (oldPort*2)%numPorts + (oldPort >= numPorts/2);
+            Logging::LOGI(SWITCH_LOGMODULE, "NewPort = "+STR(newPort)+", OldPort = "+STR(oldPort));
+            shuffledPorts[newPort] = outputPorts[oldPort];
+        }
+        outputPorts = shuffledPorts;
+
+        portsDebug = std::stringstream("");
+        for(auto i : outputPorts)
+            portsDebug << i << " hehe ";
+        Logging::LOGI(SWITCH_LOGMODULE, "Input packets after shuffle " + portsDebug.str());
+    }
+
 }

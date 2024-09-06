@@ -6,21 +6,41 @@ namespace Switch{
 
 std::vector<bool> Delta::SwitchPackets(const std::vector<int>& outputPorts)
 {
+    Logging::LOGI(DELTA_LOGGING, "Starting Switching for Delta Switch");
+
     std::vector<std::vector<Switch::SwitchConfig>> configs;
-    std::vector<int> ports;
+    std::vector<int> ports = outputPorts;
+    while(ports.size() != numPorts)
+        ports.push_back(-1);
+    
+    // Should there be an input shuffle to remove contention?
+    Switch::Shuffle(ports);
     for(int layer=1; layer<=portLength; layer++)
     {
         configs.push_back(Switch::SwitchPackets(ports, layer));
         if(layer!=portLength)
             Butterfly(ports, layer);
+
+        std::string output;
+        for(auto i : configs.back())
+            output += STR(i) + " ";
+        Logging::LOGI(DELTA_LOGGING, "At layer " + STR(layer) + " Switch config is " + output);
+        Logging::LOGI(DELTA_LOGGING, "Done with switching for layer " + STR(layer));
     }
     this->configs = configs;
+
+    Logging::LOGI(DELTA_LOGGING, "Done Switching for Delta Switch");
     return std::vector<bool>(numPorts, true); // TODO: Change this
 }
 
 void Delta::Butterfly(std::vector<int>& outputPorts, int layer)
 {
     std::vector<int> newOutputPorts(numPorts, -1);
+
+    std::stringstream portsDebug;
+    for(auto i : outputPorts)
+        portsDebug << i << " hehe ";
+    Logging::LOGI(DELTA_LOGGING, "Input packets before butterfly " + portsDebug.str());
 
     int blockSize = (1<<(portLength-layer));
     Logging::LOGI(DELTA_LOGGING, "Blocksize is " + STR(blockSize) + " for layer " + STR(layer));
@@ -30,10 +50,8 @@ void Delta::Butterfly(std::vector<int>& outputPorts, int layer)
     {
         for(int port=portStart; port-portStart<blockSize; port++)
         {
-            if(port==-1)
-                continue;
-            bool bit = Switch::GetIthBit(outputPorts[port], layer);
-            int newPort = (port + (bit == currentHalf) * blockSize) % numPorts;
+            bool bit = Switch::GetIthBit(port, portLength - layer + 1);
+            int newPort = (port + (bit != currentHalf) * (blockSize-1)) % numPorts;
 
             Logging::LOGI(DELTA_LOGGING, "Packet at port " + STR(port) + " got butterflown to port " + STR(newPort));
 
@@ -43,6 +61,11 @@ void Delta::Butterfly(std::vector<int>& outputPorts, int layer)
     }
 
     outputPorts = newOutputPorts;
+
+    portsDebug = std::stringstream("");
+    for(auto i : outputPorts)
+        portsDebug << i << " hehe ";
+    Logging::LOGI(DELTA_LOGGING, "Input packets before butterfly " + portsDebug.str());
 }
 
 }

@@ -43,6 +43,9 @@ namespace Switch {
             // assuming that the number has `log2(numPort)` number of bits in total
             bool GetIthBit(int num, int i);
 
+            // performs one round of shuffle on the packets
+            void Shuffle(std::vector<int>& outputPorts);
+
             int numPorts;
             int portLength;
             std::vector<std::vector<SwitchConfig>> configs;
