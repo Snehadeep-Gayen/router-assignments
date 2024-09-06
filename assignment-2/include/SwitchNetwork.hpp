@@ -2,7 +2,9 @@
 
 #include <string>
 #include <fstream>
+#include <memory>
 #include "Logging.hpp"
+#include "Switch.hpp"
 
 namespace Simulation{
 
@@ -16,12 +18,12 @@ namespace Simulation{
     class Simulator{
 
         public:
-            Simulator(struct Config&& conf) : conf(conf) {};
-            int Start(void) { return 0; };
+            Simulator(struct Config&& conf);
+            int Start(void);
 
         private:
 
             struct Config conf;
-            // Switch::Switch sw;
+            std::unique_ptr<Switch::Switch> sw;
     };
 }

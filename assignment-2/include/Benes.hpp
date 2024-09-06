@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Switch.hpp"
 
 namespace Switch{
@@ -19,7 +18,7 @@ class Benes : public Switch
 
     private:
 
-        // returns the position after a perfect shuffle with `numPorts` cards
+// returns the position after a perfect shuffle with `numPorts` cards
         int GetShufflePosition(int posBefore);
 
         // returns the position that would have lead to this position after a shuffle of `numPorts` cards
@@ -27,7 +26,7 @@ class Benes : public Switch
 
         // Determines first switch contention and last switch contention and decides the halves that need to be routed
         // To deal with Empty input ports, put -1 in the corresponding entries of the outputPorts
-        std::pair<std::vector<int>, std::vector<int>> DistributeHalves(const std::vector<int>& outputPorts);
+        void DetermineConfiguration(const std::vector<int>& outputPorts);
 
         void TwoColorDFS(int node, std::vector<int>& color, const std::vector<std::vector<int>>& adj);
 
@@ -44,7 +43,6 @@ class Benes : public Switch
         4. Prepends & Appends the Configuration of the first & last level of switches to the output configuration of the two halves
         
         */
-
 
 };
 

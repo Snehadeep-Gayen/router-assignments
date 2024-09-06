@@ -18,6 +18,8 @@ namespace Switch {
                 ANYTHING
             };
 
+            friend std::ostream& operator<<(std::ostream& os, const Switch::SwitchConfig& sw);
+
             // each switch has a fixed number of ports (and # input ports = # output ports)
             Switch(int numPorts);
 
@@ -27,7 +29,9 @@ namespace Switch {
 
             // returns the configuration (cross or through for each 2x2 switch in the network
             // true means cross, false means
-            virtual std::vector<std::vector<SwitchConfig>> GetConfigurations(void) ;
+            std::vector<std::vector<SwitchConfig>> GetConfigurations(void);
+
+            virtual ~Switch() = default;
 
         protected:
 

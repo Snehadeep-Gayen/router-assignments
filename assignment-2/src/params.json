@@ -4,7 +4,7 @@
       "type": "string"
     },
     {
-      "flag": "sw",
+      "flag": "type",
       "type": "string"
     }
 ]

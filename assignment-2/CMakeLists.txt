@@ -21,6 +21,8 @@ set(SOURCES
     src/Delta.cpp
     src/Omega.cpp
     src/Switch.cpp
+    src/SwitchNetwork.cpp
+    src/Benes.cpp
 )
 
 target_sources(SwitchNetwork PRIVATE ${SOURCES})

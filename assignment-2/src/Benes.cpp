@@ -3,15 +3,34 @@
 #include <cassert>
 #include <algorithm>
 
-
 namespace Switch {
+
+
+    std::vector<bool> Benes::SwitchPackets(const std::vector<int>& inputPackets)
+    {
+        std::vector<int> modPackets(numPorts, -1);
+        std::copy(inputPackets.begin(), inputPackets.end(), modPackets.begin());
+
+        // make it a permutation
+        std::vector<bool> present(numPorts, false);
+        std::for_each(inputPackets.begin(), inputPackets.end(), [&present](const int& val){ present[val] = true; });
+        int modPacketIndex = inputPackets.size();
+        for(int i=0; i<numPorts; i++)
+            if(!present[i])
+                modPackets[modPacketIndex++] = i;
+        
+        // now feed it to DeterminConfiguration
+        DetermineConfiguration(modPackets);
+
+        return {};
+    }
 
     int Benes::GetShufflePosition(int pos)
     {
         return (2 * pos) % numPorts;
     }
 
-    int Benes::GetShufflePosition(int pos)
+    int Benes::GetInverseSufflePosition(int pos)
     {
         int candidate1 = pos/2 + numPorts/2;
         int candidate2 = pos/2;
@@ -36,7 +55,7 @@ namespace Switch {
                 throw std::runtime_error("Graph is not 2 colorable!!!");
     }
 
-    std::pair<std::vector<int>, std::vector<int>> Benes::DistributeHalves(const std::vector<int>& outputPorts)
+    void Benes::DetermineConfiguration(const std::vector<int>& outputPorts)
     {
         // no port should be negative
         assert(std::all_of(outputPorts.begin(), outputPorts.end(), [](const int& val) { return val>=0; }));

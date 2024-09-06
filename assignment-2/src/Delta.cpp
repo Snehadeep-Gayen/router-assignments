@@ -8,10 +8,10 @@ std::vector<bool> Delta::SwitchPackets(const std::vector<int>& outputPorts)
 {
     std::vector<std::vector<Switch::SwitchConfig>> configs;
     std::vector<int> ports;
-    for(int layer=1; layer<portLength; layer++)
+    for(int layer=1; layer<=portLength; layer++)
     {
         configs.push_back(Switch::SwitchPackets(ports, layer));
-        if(numPorts!=2)
+        if(layer!=portLength)
             Butterfly(ports, layer);
     }
     this->configs = configs;

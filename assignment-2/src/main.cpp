@@ -27,16 +27,18 @@ struct Simulation::Config prepareConfig(std::unordered_map<std::string, CommandL
     struct Simulation::Config cfg;
 
     Logging::LOGI(CONFIG_LOGM, "Starting argMap to Config conversion");
-
+    
+    Logging::LOGI(CONFIG_LOGM, "Checking first argument - in ");
 	std::optional<CommandLine::ArgumentType> argVal = argMap.at("in").getArg();
 	assert(argVal.has_value());
 	cfg.inputfilename = std::get<std::string>(argVal.value());
 
-	argVal = argMap.at("sw").getArg();
+    Logging::LOGI(CONFIG_LOGM, "Checking first argument - type ");
+	argVal = argMap.at("type").getArg();
 	assert(argVal.has_value());
     std::string flag = std::get<std::string>(argVal.value());
     assert(flag=="Benes" || flag=="Delta" || flag=="Omega");
-    cfg.switchType = (flag=="hop");
+    cfg.switchType = flag;
 
     Logging::LOGI(CONFIG_LOGM, "Populated argMap to Config");
 
