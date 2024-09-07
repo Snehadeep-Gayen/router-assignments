@@ -12,7 +12,6 @@ namespace Switch{
             portLength++;
     }
 
-
     std::vector<Switch::SwitchConfig> Switch::SwitchPackets(std::vector<int>& outputPorts, int layer)
     {
         Logging::LOGI(SWITCH_LOGMODULE, "2x2 Switching a set of packets");
@@ -71,7 +70,6 @@ namespace Switch{
         
         return os;
     } 
-
 
     void Switch::Shuffle(std::vector<int>& outputPorts)
     {
