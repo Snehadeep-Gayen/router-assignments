@@ -80,17 +80,9 @@ namespace Switch {
         if(numPorts==2)
         {
             if(outputPorts[0]==0)
-            {
                 this->configs = std::vector<std::vector<Switch::SwitchConfig>>(1, {SwitchConfig::THROUGH});
-                this->PrintConfig();
-                std::cout << "\n--------------\n";
-            }
             else
-            {
                 this->configs = std::vector<std::vector<Switch::SwitchConfig>>(1, {SwitchConfig::CROSS});
-                this->PrintConfig();
-                std::cout << "\n--------------\n";
-            }
             return;
         }
 
@@ -137,11 +129,6 @@ namespace Switch {
                         oneCnt++;
                 color[i] = (oneCnt < zeroCnt);
                 Benes::TwoColorDFS(i, color, adj);
-                int cnt = 0;
-                for(auto i : color)
-                    if(i!=-1)
-                        cnt++;
-                std::cout << i << ":" << cnt << "\n";
             }
         }
 
@@ -201,30 +188,18 @@ namespace Switch {
             Logging::LOGI(BENES_LOGGING, "Output: OldPort_o: " + STR(oldPort_o) + ", NewPort_o: "+STR(newPort_o) + ", Shuffled Port: "+STR(shuffledPort_o));
 
             if(shuffledPort_i<halfSize)
-            {
                 topHalf[shuffledPort_i] = shuffledPort_o;
-            }
             else
-            {
                 bottomHalf[shuffledPort_i-halfSize] = shuffledPort_o;
-            }
         }
         
         // get the configuration for the top half
         std::vector<int> topHalfMod = topHalf;
         for(auto& outputPort : topHalfMod)
-        {
-            // std::cout << i << " hehe\n";
-            // outputPort = GetInverseSufflePosition(outputPort) % halfSize;
             outputPort %= halfSize;
-        }
         std::vector<int> bottomHalfMod = bottomHalf;
         for(auto& outputPort : bottomHalfMod)
-        {
-            // std::cout << i << " huhu\n";
-            // outputPort = (GetInverseSufflePosition(outputPort)) % halfSize;
             outputPort %= halfSize;
-        }
 
         subBenes.SwitchPackets(topHalfMod);
         auto topConfig = subBenes.GetConfigurations();
@@ -238,9 +213,7 @@ namespace Switch {
 
         // add the first layer of switch config
         configs.push_back(firstSwitch);
-        std::cout << configs.size() << "hehe\n";
         // add all intermediate layers of switch config
-        assert(topConfig.size()==bottomConfig.size());
         for(int i=0; i<topConfig.size(); i++)
         {
             std::vector<Switch::SwitchConfig> layerConfig;
@@ -248,13 +221,9 @@ namespace Switch {
             std::copy(bottomConfig[i].begin(), bottomConfig[i].end(), std::back_inserter(layerConfig));
             configs.push_back(layerConfig);
         }
-        std::cout << configs.size() << "hehe\n";
         // add the end layer of switch config
         configs.push_back(lastSwitch);
-        std::cout << configs.size() << "hehe\n";
 
         this->configs = configs;
-        this->PrintConfig();
-        std::cout << "\n-----------------------------------\n";
     }
 }
