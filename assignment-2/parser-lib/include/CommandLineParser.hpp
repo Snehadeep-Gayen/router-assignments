@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include <string>
-#include <optional>
 #include "Argument.hpp"
 #include "ArgumentInfo.hpp"
 #include <vector>

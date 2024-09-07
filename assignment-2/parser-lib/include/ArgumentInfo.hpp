@@ -1,7 +1,7 @@
 #pragma once
 
+#include <memory>
 #include <string>
-#include <variant>
 #include "ArgumentType.hpp"
 #include "Argument.hpp"
 #include "Logging.hpp"

@@ -71,6 +71,23 @@ namespace Switch{
         return os;
     } 
 
+    void Switch::PrintConfig(void)
+    {
+        // all the layers should have the same number of 2x2 switches
+        int size = configs[0].size();
+        for(const auto& vec : configs)
+            assert(size == vec.size());
+
+        for(int j=0; j<configs[0].size(); j++)
+        {
+            for(int i=0; i<configs.size()-1; i++)
+                std::cout << configs[i][j] << " ";
+            std::cout << configs[configs.size()-1][j];
+            if(j != configs[0].size()-1)
+                std::cout << "\n";
+        }
+    }
+
     void Switch::Shuffle(std::vector<int>& outputPorts)
     {
         std::stringstream portsDebug;

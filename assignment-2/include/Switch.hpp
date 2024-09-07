@@ -33,6 +33,8 @@ namespace Switch {
 
             virtual ~Switch() = default;
 
+            void PrintConfig(void);
+
         protected:
 
             // determines the switch configuration assuming that the packets are 

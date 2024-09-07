@@ -23,9 +23,9 @@ namespace Logging{
 
     inline void LOGX(std::string level, std::string module, std::string message) 
     {
-        std::cout << "[" << getCurrentTimeWithMicroseconds() << "]"; 
-        std::cout << " [" << level << "] ";
-        std::cout << " [" << module << "] " << message << std::endl;
+        std::cerr << "[" << getCurrentTimeWithMicroseconds() << "]"; 
+        std::cerr << " [" << level << "] ";
+        std::cerr << " [" << module << "] " << message << std::endl;
     }
 
     inline void LOGI(std::string module, std::string message) 

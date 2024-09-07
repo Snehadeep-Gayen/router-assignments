@@ -2,6 +2,8 @@
 #include "Logging.hpp"
 #include <cassert>
 #include <algorithm>
+#include <cstdio>
+#include <iterator>
 
 namespace Switch {
 
@@ -49,7 +51,7 @@ namespace Switch {
             if(color[nbr]!=0 && color[nbr]!=1)
             {
                 color[nbr] = 1-color[node];
-                TwoColorDFS(node, color, adj);
+                TwoColorDFS(nbr, color, adj);
             }
             else if(color[nbr]==color[node])
                 throw std::runtime_error("Graph is not 2 colorable!!!");
@@ -78,9 +80,17 @@ namespace Switch {
         if(numPorts==2)
         {
             if(outputPorts[0]==0)
+            {
                 this->configs = std::vector<std::vector<Switch::SwitchConfig>>(1, {SwitchConfig::THROUGH});
+                this->PrintConfig();
+                std::cout << "\n--------------\n";
+            }
             else
+            {
                 this->configs = std::vector<std::vector<Switch::SwitchConfig>>(1, {SwitchConfig::CROSS});
+                this->PrintConfig();
+                std::cout << "\n--------------\n";
+            }
             return;
         }
 
@@ -98,19 +108,6 @@ namespace Switch {
             inputPorts[outputPorts[i]] = i;
 
         std::vector<std::vector<int>> adj(numPorts);
-        for(int i=0; i<numPorts/2; i++)
-        {
-            int p1 = i, p2 = numPorts/2+i;
-
-            // input constraint
-            adj[p1].push_back(p2);
-            adj[p2].push_back(p1);
-
-            // output constraint
-            adj[outputPorts[p1]].push_back(outputPorts[p2]);
-            adj[outputPorts[p2]].push_back(outputPorts[p1]);
-        }
-
         for(int i=0; i<numPorts; i+=2)
         {
             int p1 = i, p2 = i+1;
@@ -118,10 +115,12 @@ namespace Switch {
             // input constraint
             adj[p1].push_back(p2);
             adj[p2].push_back(p1);
+            Logging::LOGI(BENES_LOGGING, "Edge between " + STR(p1) + " " + STR(p2));
 
             // output constraint
             adj[outputPorts[p1]].push_back(outputPorts[p2]);
             adj[outputPorts[p2]].push_back(outputPorts[p1]);
+            Logging::LOGI(BENES_LOGGING, "Edge between " + STR(outputPorts[p1]) + " " + STR(outputPorts[p2]));
         }
 
         // time to 2-color the graph
@@ -130,7 +129,13 @@ namespace Switch {
         {
             if(color[i]==-1)
             {
-                color[i] = 0;
+                int zeroCnt=0, oneCnt=0;
+                for(auto i : color)
+                    if(i==0)
+                        zeroCnt++;
+                    else if(i==1)
+                        oneCnt++;
+                color[i] = (oneCnt < zeroCnt);
                 Benes::TwoColorDFS(i, color, adj);
                 int cnt = 0;
                 for(auto i : color)
@@ -139,20 +144,30 @@ namespace Switch {
                 std::cout << i << ":" << cnt << "\n";
             }
         }
+
+
         std::string colorstr;
         std::for_each(color.begin(), color.end(), [&colorstr](int val) { colorstr += STR(val) + " "; });
         Logging::LOGI(BENES_LOGGING, "Colors wrt output Ports are: "+colorstr);
+
+        int zeroCnt=0, oneCnt=0;
+        for(auto i : color)
+            if(i==0)
+                zeroCnt++;
+            else if(i==1)
+                oneCnt++;
+        assert(zeroCnt == oneCnt);
         assert(std::all_of(color.begin(), color.end(), [](const int val){ return val==0 || val==1;}));
 
         // LOG the results
         for(int i=0; i<numPorts; i++)
         {
             Logging::LOGI(BENES_LOGGING, "Packet at input port " + STR(i) + " destined to port " +
-                STR(outputPorts[i]) + " is being sent to the " + ((color[i]==1)? "Lower Benes Half." : "Upper Benes Half."));
+                STR(outputPorts[i]) + " is being sent to the " + ((color[outputPorts[i]]==1)? "Lower Benes Half." : "Upper Benes Half."));
         }
 
         std::vector<Switch::SwitchConfig> firstSwitch, lastSwitch;
-        for(int i=0; i<numPorts/2; i+=2)
+        for(int i=0; i<numPorts; i+=2)
         {
             assert(color[outputPorts[i]] != color[outputPorts[i+1]]);
             // if lower half is being sent to the lower half itself
@@ -163,7 +178,7 @@ namespace Switch {
 
             assert(color[i]!=color[i+1]);
             // if lower half is being sent to the lower half itself
-            if(color[2*i]==0)
+            if(color[i]==0)
                 lastSwitch.push_back(Switch::SwitchConfig::THROUGH);
             else
                 lastSwitch.push_back(Switch::SwitchConfig::CROSS);
@@ -177,67 +192,69 @@ namespace Switch {
         {
             int oldPort_i = inputPorts[i];
             int newPort_i = (inputPorts[i]/2)*2 + color[i];
-            int shuffledPort_i = GetShufflePosition(newPort_i);
+            int shuffledPort_i = GetInverseSufflePosition(newPort_i);
             Logging::LOGI(BENES_LOGGING, "Input: OldPort_i: " + STR(oldPort_i) + ", NewPort_i: "+STR(newPort_i) + ", Shuffled Port: "+STR(shuffledPort_i));
 
-            // int oldPort_o = i;
-            // int newPort_o = (i/2)*2 + color[i];
-            // int shuffledPort_o = GetShufflePosition(newPort_o);
-            // Logging::LOGI(BENES_LOGGING, "Output: OldPort_o: " + STR(oldPort_o) + ", NewPort_o: "+STR(newPort_o) + ", Shuffled Port: "+STR(shuffledPort_o));
+            int oldPort_o = i;
+            int newPort_o = (i/2)*2 + color[i];
+            int shuffledPort_o = GetInverseSufflePosition(newPort_o);
+            Logging::LOGI(BENES_LOGGING, "Output: OldPort_o: " + STR(oldPort_o) + ", NewPort_o: "+STR(newPort_o) + ", Shuffled Port: "+STR(shuffledPort_o));
 
             if(shuffledPort_i<halfSize)
             {
-                topHalf[shuffledPort_i] = i;
+                topHalf[shuffledPort_i] = shuffledPort_o;
             }
             else
             {
-                bottomHalf[shuffledPort_i-halfSize] = i;
+                bottomHalf[shuffledPort_i-halfSize] = shuffledPort_o;
             }
         }
         
         // get the configuration for the top half
         std::vector<int> topHalfMod = topHalf;
-        for(auto& i : topHalfMod)
+        for(auto& outputPort : topHalfMod)
         {
             // std::cout << i << " hehe\n";
-            i %= halfSize;
+            // outputPort = GetInverseSufflePosition(outputPort) % halfSize;
+            outputPort %= halfSize;
         }
         std::vector<int> bottomHalfMod = bottomHalf;
-        for(auto& i : bottomHalfMod)
+        for(auto& outputPort : bottomHalfMod)
         {
             // std::cout << i << " huhu\n";
-            i %= halfSize;
+            // outputPort = (GetInverseSufflePosition(outputPort)) % halfSize;
+            outputPort %= halfSize;
         }
 
         subBenes.SwitchPackets(topHalfMod);
         auto topConfig = subBenes.GetConfigurations();
-        assert(topConfig.size() == halfSize/2);
+        Logging::LOGI(BENES_LOGGING, STR(topConfig.size()) + ": TopConfig size, n:"+ STR(numPorts) + ", 2log n - 1:" + STR(2*portLength - 1));
+        assert(topConfig.size() == 2*portLength-3);
         subBenes.SwitchPackets(bottomHalfMod);
         auto bottomConfig = subBenes.GetConfigurations();
-        assert(topConfig.size() == halfSize/2);
+        assert(bottomConfig.size() == 2*portLength-3);
 
         std::vector<std::vector<Switch::SwitchConfig>> configs;
 
-        for(int i=0; i<halfSize/2; i++)
+        // add the first layer of switch config
+        configs.push_back(firstSwitch);
+        std::cout << configs.size() << "hehe\n";
+        // add all intermediate layers of switch config
+        assert(topConfig.size()==bottomConfig.size());
+        for(int i=0; i<topConfig.size(); i++)
         {
-            std::vector<Switch::SwitchConfig> config;
-            config.push_back(firstSwitch[i]);
-            for(const auto& i : topConfig[i])
-                config.push_back(i);
-            config.push_back(lastSwitch[i]);
-            configs.push_back(config);
+            std::vector<Switch::SwitchConfig> layerConfig;
+            std::copy(topConfig[i].begin(), topConfig[i].end(), std::back_inserter(layerConfig));
+            std::copy(bottomConfig[i].begin(), bottomConfig[i].end(), std::back_inserter(layerConfig));
+            configs.push_back(layerConfig);
         }
-
-        for(int i=0; i<halfSize/2; i++)
-        {
-            std::vector<Switch::SwitchConfig> config;
-            config.push_back(firstSwitch[halfSize+i]);
-            for(const auto& i : bottomConfig[i])
-                config.push_back(i);
-            config.push_back(lastSwitch[halfSize+i]);
-            configs.push_back(config);
-        }
+        std::cout << configs.size() << "hehe\n";
+        // add the end layer of switch config
+        configs.push_back(lastSwitch);
+        std::cout << configs.size() << "hehe\n";
 
         this->configs = configs;
+        this->PrintConfig();
+        std::cout << "\n-----------------------------------\n";
     }
 }
