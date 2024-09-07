@@ -1,5 +1,6 @@
 #include "Benes.hpp"
 #include "Logging.hpp"
+#include "Switch.hpp"
 #include <cassert>
 #include <algorithm>
 #include <cstdio>
@@ -11,6 +12,7 @@ namespace Switch {
     std::vector<bool> Benes::SwitchPackets(const std::vector<int>& inputPackets)
     {
         std::vector<int> modPackets(numPorts, -1);
+        std::vector<bool> dontCare(numPorts, false);
         std::copy(inputPackets.begin(), inputPackets.end(), modPackets.begin());
 
         // make it a permutation
@@ -19,10 +21,13 @@ namespace Switch {
         int modPacketIndex = inputPackets.size();
         for(int i=0; i<numPorts; i++)
             if(!present[i])
+            {
+                dontCare[modPacketIndex] = true;
                 modPackets[modPacketIndex++] = i;
+            }
         
         // now feed it to DeterminConfiguration
-        DetermineConfiguration(modPackets);
+        DetermineConfiguration(modPackets, dontCare);
 
         return {};
     }
@@ -57,11 +62,14 @@ namespace Switch {
                 throw std::runtime_error("Graph is not 2 colorable!!!");
     }
 
-    void Benes::DetermineConfiguration(const std::vector<int>& outputPorts)
+    void Benes::DetermineConfiguration(const std::vector<int>& outputPorts, const std::vector<bool>& dontCare)
     {
         std::string s;
         std::for_each(outputPorts.cbegin(), outputPorts.cend(), [&s](const int& val) { s += STR(val) + " "; });
         Logging::LOGI(BENES_LOGGING, "Got output ports array " + s);
+        s.clear();
+        std::for_each(dontCare.cbegin(), dontCare.cend(), [&s](const bool& val) { s += std::string((val)?"TRUE ": "FALSE "); });
+        Logging::LOGI(BENES_LOGGING, "Got dontCare array " + s);
 
         // no port should be negative
         assert(std::all_of(outputPorts.begin(), outputPorts.end(), [](const int& val) { return val>=0; }));
@@ -79,10 +87,14 @@ namespace Switch {
         // BASE CASE: if numPorts == 2 then just check
         if(numPorts==2)
         {
-            if(outputPorts[0]==0)
-                this->configs = std::vector<std::vector<Switch::SwitchConfig>>(1, {SwitchConfig::THROUGH});
+            this->configs = std::vector<std::vector<Switch::SwitchConfig>>(1);
+            if(dontCare[0] && dontCare[1])
+                this->configs[0].push_back(SwitchConfig::ANYTHING);
+            else if(outputPorts[0]==0)
+                this->configs[0].push_back(SwitchConfig::THROUGH);
             else
-                this->configs = std::vector<std::vector<Switch::SwitchConfig>>(1, {SwitchConfig::CROSS});
+                this->configs[0].push_back(SwitchConfig::CROSS);
+            
             return;
         }
 
@@ -153,28 +165,33 @@ namespace Switch {
                 STR(outputPorts[i]) + " is being sent to the " + ((color[outputPorts[i]]==1)? "Lower Benes Half." : "Upper Benes Half."));
         }
 
-        std::vector<Switch::SwitchConfig> firstSwitch, lastSwitch;
+        std::vector<SwitchConfig> firstSwitch, lastSwitch;
         for(int i=0; i<numPorts; i+=2)
         {
             assert(color[outputPorts[i]] != color[outputPorts[i+1]]);
             // if lower half is being sent to the lower half itself
-            if(color[outputPorts[i]]==0)
-                firstSwitch.push_back(Switch::SwitchConfig::THROUGH);
+            if(dontCare[i] && dontCare[i+1])
+                firstSwitch.push_back(SwitchConfig::ANYTHING);
+            else if(color[outputPorts[i]]==0)
+                firstSwitch.push_back(SwitchConfig::THROUGH);
             else
-                firstSwitch.push_back(Switch::SwitchConfig::CROSS);
+                firstSwitch.push_back(SwitchConfig::CROSS);
 
             assert(color[i]!=color[i+1]);
             // if lower half is being sent to the lower half itself
-            if(color[i]==0)
-                lastSwitch.push_back(Switch::SwitchConfig::THROUGH);
+            if(dontCare[inputPorts[i]] && dontCare[inputPorts[i+1]])
+                lastSwitch.push_back(SwitchConfig::ANYTHING);
+            else if(color[i]==0)
+                lastSwitch.push_back(SwitchConfig::THROUGH);
             else
-                lastSwitch.push_back(Switch::SwitchConfig::CROSS);
+                lastSwitch.push_back(SwitchConfig::CROSS);
         }
 
         // Create a smaller Benes network
         const int halfSize = numPorts/2;
         Benes subBenes(halfSize);
         std::vector<int> topHalf(halfSize, -1), bottomHalf(halfSize, -1);
+        std::vector<bool> topDC(halfSize, false), bottomDC(halfSize, false);
         for(int i=0; i<numPorts; i++)
         {
             int oldPort_i = inputPorts[i];
@@ -188,35 +205,38 @@ namespace Switch {
             Logging::LOGI(BENES_LOGGING, "Output: OldPort_o: " + STR(oldPort_o) + ", NewPort_o: "+STR(newPort_o) + ", Shuffled Port: "+STR(shuffledPort_o));
 
             if(shuffledPort_i<halfSize)
+            {
+                assert(color[i]==0);
+                assert(shuffledPort_o<halfSize);
                 topHalf[shuffledPort_i] = shuffledPort_o;
+                topDC[shuffledPort_i] = dontCare[inputPorts[i]];
+            }
             else
-                bottomHalf[shuffledPort_i-halfSize] = shuffledPort_o;
+            {
+                assert(color[i]==1);
+                assert(shuffledPort_o>=halfSize);
+                bottomHalf[shuffledPort_i-halfSize] = shuffledPort_o-halfSize;
+                bottomDC[shuffledPort_i-halfSize] = dontCare[inputPorts[i]];
+            }
         }
-        
-        // get the configuration for the top half
-        std::vector<int> topHalfMod = topHalf;
-        for(auto& outputPort : topHalfMod)
-            outputPort %= halfSize;
-        std::vector<int> bottomHalfMod = bottomHalf;
-        for(auto& outputPort : bottomHalfMod)
-            outputPort %= halfSize;
 
-        subBenes.SwitchPackets(topHalfMod);
+        subBenes.DetermineConfiguration(topHalf, topDC);
         auto topConfig = subBenes.GetConfigurations();
         Logging::LOGI(BENES_LOGGING, STR(topConfig.size()) + ": TopConfig size, n:"+ STR(numPorts) + ", 2log n - 1:" + STR(2*portLength - 1));
         assert(topConfig.size() == 2*portLength-3);
-        subBenes.SwitchPackets(bottomHalfMod);
+
+        subBenes.DetermineConfiguration(bottomHalf, bottomDC);
         auto bottomConfig = subBenes.GetConfigurations();
         assert(bottomConfig.size() == 2*portLength-3);
 
-        std::vector<std::vector<Switch::SwitchConfig>> configs;
+        std::vector<std::vector<SwitchConfig>> configs;
 
         // add the first layer of switch config
         configs.push_back(firstSwitch);
         // add all intermediate layers of switch config
         for(int i=0; i<topConfig.size(); i++)
         {
-            std::vector<Switch::SwitchConfig> layerConfig;
+            std::vector<SwitchConfig> layerConfig;
             std::copy(topConfig[i].begin(), topConfig[i].end(), std::back_inserter(layerConfig));
             std::copy(bottomConfig[i].begin(), bottomConfig[i].end(), std::back_inserter(layerConfig));
             configs.push_back(layerConfig);

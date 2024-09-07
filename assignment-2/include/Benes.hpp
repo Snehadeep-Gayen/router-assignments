@@ -26,7 +26,7 @@ class Benes : public Switch
 
         // Determines first switch contention and last switch contention and decides the halves that need to be routed
         // To deal with Empty input ports, put -1 in the corresponding entries of the outputPorts
-        void DetermineConfiguration(const std::vector<int>& outputPorts);
+        void DetermineConfiguration(const std::vector<int>& outputPorts, const std::vector<bool>& dontCare);
 
         void TwoColorDFS(int node, std::vector<int>& color, const std::vector<std::vector<int>>& adj);
 
