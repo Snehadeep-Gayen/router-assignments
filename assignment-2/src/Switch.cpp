@@ -16,6 +16,7 @@ namespace Switch{
     {
         Logging::LOGI(SWITCH_LOGMODULE, "2x2 Switching a set of packets");
         std::vector<Switch::SwitchConfig> config;
+        
         for(int i=0; i<outputPorts.size(); i+=2)
         {
             int firstPort = outputPorts[i];
@@ -34,7 +35,9 @@ namespace Switch{
                 config.push_back(firstPort ? Switch::CROSS : Switch::THROUGH);
             else
             {
-                Logging::LOGE(SWITCH_LOGMODULE, "Ports " + STR(i) + " and " + STR(i+1) + " contend, with desired outputs " + STR(firstPort) + " and " + STR(secondPort));
+                Logging::LOGE(SWITCH_LOGMODULE, "Ports " + STR(i) + " and " + STR(i+1) + " contend, with desired outputs " 
+                    + STR(firstPort) + "(" + STR(outputPorts[i]) + ") and " 
+                    + STR(secondPort) + "(" + STR(outputPorts[i+1]) + ")");
                 throw std::runtime_error("Contention in Switch!!");
             }
 
@@ -69,7 +72,7 @@ namespace Switch{
         os << conf;
         
         return os;
-    } 
+    }
 
     void Switch::PrintConfig(void)
     {
