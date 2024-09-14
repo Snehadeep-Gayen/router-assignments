@@ -68,7 +68,7 @@ namespace Switch{
         else if(sw == Switch::SwitchConfig::THROUGH)
             conf = "T";
         else
-            conf = "Z";
+            conf = "T"; // default config
         os << conf;
         
         return os;

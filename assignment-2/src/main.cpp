@@ -34,7 +34,7 @@ struct Simulation::Config prepareConfig(std::unordered_map<std::string, CommandL
 	cfg.inputfilename = std::get<std::string>(argVal.value());
 
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - type ");
-	argVal = argMap.at("type").getArg();
+	argVal = argMap.at("sw").getArg();
 	assert(argVal.has_value());
     std::string flag = std::get<std::string>(argVal.value());
     assert(flag=="Benes" || flag=="Delta" || flag=="Omega");
