@@ -44,8 +44,15 @@ void Delta::Butterfly(std::vector<int>& outputPorts, int layer)
     {
         for(int port=portStart; port-portStart<blockSize; port++)
         {
-            bool bit = Switch::GetIthBit(port, portLength - layer + 1);
-            int newPort = (port + (bit != currentHalf) * (blockSize-1)) % numPorts;
+            bool bit = Switch::GetIthBit(port, portLength);
+            int newPort = port;
+            
+            if(bit != currentHalf)
+            {
+                int sign = 2 * currentHalf - 1;
+                newPort -= sign * (blockSize-1);
+            }
+            // int newPort = (port + (bit != currentHalf) * (blockSize-1));
 
             Logging::LOGI(DELTA_LOGGING, "Packet at port " + STR(port) + " got butterflown to port " + STR(newPort));
 
