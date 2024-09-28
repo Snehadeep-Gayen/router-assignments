@@ -18,7 +18,7 @@ class Benes : public Switch
 
     private:
 
-// returns the position after a perfect shuffle with `numPorts` cards
+        // returns the position after a perfect shuffle with `numPorts` cards
         int GetShufflePosition(int posBefore);
 
         // returns the position that would have lead to this position after a shuffle of `numPorts` cards

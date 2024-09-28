@@ -37,13 +37,7 @@ void Delta::Butterfly(std::vector<int>& outputPorts, int layer)
 {
     std::vector<int> newOutputPorts(numPorts, -1);
 
-    std::stringstream portsDebug;
-    for(auto i : outputPorts)
-        portsDebug << i << " hehe ";
-    Logging::LOGI(DELTA_LOGGING, "Input packets before butterfly " + portsDebug.str());
-
     int blockSize = (1<<(portLength-layer));
-    Logging::LOGI(DELTA_LOGGING, "Blocksize is " + STR(blockSize) + " for layer " + STR(layer));
 
     bool currentHalf = false; // false means upper half, corresponding to 0 bit
     for(int portStart=0; portStart<numPorts; portStart+=blockSize)
@@ -61,11 +55,6 @@ void Delta::Butterfly(std::vector<int>& outputPorts, int layer)
     }
 
     outputPorts = newOutputPorts;
-
-    portsDebug = std::stringstream("");
-    for(auto i : outputPorts)
-        portsDebug << i << " hehe ";
-    Logging::LOGI(DELTA_LOGGING, "Input packets before butterfly " + portsDebug.str());
 }
 
 }
