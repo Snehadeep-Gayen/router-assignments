@@ -1,0 +1,39 @@
+[
+    {
+      "flag": "N",
+      "type": "int",
+      "optional": "true"
+    },
+    {
+      "flag": "B",
+      "type": "int",
+      "optional": "true"
+    },
+    {
+      "flag": "p",
+      "type": "double",
+      "optional": "true"
+    },
+    {
+      "flag": "q",
+      "type": "string",
+      "optional": "true"
+    },
+    {
+      "flag": "K",
+      "type": "int"
+    },
+    {
+      "flag": "L",
+      "type": "int"
+    },
+    {
+      "flag": "o",
+      "type": "string"
+    },
+    {
+      "flag": "T",
+      "type": "int",
+      "optional": "true"
+    }
+]
