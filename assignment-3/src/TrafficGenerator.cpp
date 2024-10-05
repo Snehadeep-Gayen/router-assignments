@@ -2,7 +2,8 @@
 
 TrafficGenerator::TrafficGenerator(int numPorts, float probab) : numPorts(numPorts), prob(probab)
 {
-    char* oldState = initstate(78, randState.data(), randState.size());
+    // char* oldState = initstate(78, randState.data(), randState.size());
+    srandom(78);
 }
 
 float TrafficGenerator::GenerateRandomStartDelay(void)
@@ -39,6 +40,5 @@ bool TrafficGenerator::GenerateSinglePacket(void)
 
 int TrafficGenerator::GenerateRandomOutputPort(void)
 {
-    long long int port = static_cast<long long int>(random()) * numPorts / RAND_MAX;
-    return static_cast<int>(port);
+    return random() % numPorts;
 }
