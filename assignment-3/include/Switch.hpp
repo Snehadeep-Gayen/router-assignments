@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cassert>
+#include <deque>
 #include <iostream>
 #include <queue>
+#include <set>
 #include <stdlib.h>
 #include <vector>
 #include <optional>
@@ -35,7 +37,7 @@ class Switch
             {
                 if(pkts[i].has_value() && inputQs[i].size()<bufferSize)
                 {
-                    inputQs[i].push(pkts[i].value());
+                    inputQs[i].push_back(pkts[i].value());
                 }
                 else
                 {
@@ -58,7 +60,7 @@ class Switch
                     if(!pktQ.empty())
                     {
                         outpkts[pktQ.front().outputPort].push_back(pktQ.front());
-                        pktQ.pop();
+                        pktQ.pop_front();
                     }
                     assert(pktQ.empty());
                 });
@@ -77,7 +79,7 @@ class Switch
                 for(int i=0; i<numPorts; i++){
                     assert(outputQs.empty());
                     if(finalOutputs[i].has_value() && outputQs[i].size()<bufferSize)
-                        outputQs[i].push(finalOutputs[i].value());
+                        outputQs[i].push_back(finalOutputs[i].value());
                 }
             }
             else if(type == QueueType::INQ)
@@ -100,7 +102,7 @@ class Switch
                     if(!pktQ.empty() && pktcnt[pktQ.front().outputPort]--==0)  // beware of loop around case
                     {
                         finalOutputs.push_back(pktQ.front());
-                        pktQ.pop();
+                        pktQ.pop_front();
                     }
                     else
                     {
@@ -112,7 +114,129 @@ class Switch
                 for(int i=0; i<numPorts; i++){
                     assert(outputQs.empty());
                     if(finalOutputs[i].has_value() && outputQs[i].size()<bufferSize)
-                        outputQs[i].push(finalOutputs[i].value());
+                        outputQs[i].push_back(finalOutputs[i].value());
+                }
+            }
+            else if(type==QueueType::CIOQ)
+            {
+
+                for(int backplane_iter=0; backplane_iter<speedup; backplane_iter++)
+                {
+                    // iSLIP algorithm: ref. DOI: 10.1109/90.769767
+                    
+                    // initially all (non-empty) input ports want to send their packets
+                    std::vector<bool> inputQsatisfied(numPorts, false);
+                    std::vector<bool> outputQsatisfied(numPorts, false);
+                    for(int i=0; i<inputQs.size(); i++)
+                        if(inputQs.empty())
+                            inputQsatisfied[i] = true;
+
+                    std::vector<int> finalAccepted(numPorts, -1);   // stores the final allocation of the packets
+
+                    //// INITIALISE THE LAST-SENT POINTERS /////
+                    std::vector<int> lastGrantedAndAccepted(numPorts, 0); // initial value doesn't affect 
+                    std::vector<int> lastAccepted(numPorts, 0); // initial value doesn't matter much
+                    
+                    // start with the iterations
+                    for(int iSLIP_iter=0; iSLIP_iter<numPorts; iSLIP_iter++)   // theoretically, upper bound is the numPorts
+                    {
+                        //////////////// REQUEST PHASE /////////////////
+
+                        std::vector<std::set<int>> requests(numPorts); 
+
+                        // every input port sends requests to the output ports, it has packets for (first L packets only)
+                        for(int port=0; port<numPorts; port++)
+                        {
+                            if(inputQsatisfied[port])
+                                continue;
+
+                            for(int pktidx=0; pktidx < std::min(L, (int)inputQs[port].size()); pktidx++)
+                            {
+                                requests[inputQs[port][pktidx].outputPort].insert(port);
+                            }
+                        }
+
+                        ////////////// GRANT PHASE /////////////////
+
+                        // std::vector<int> selectedPort(numPorts, -1);
+                        std::vector<std::vector<int>> grants(numPorts);
+
+                        for(int port=0; port<numPorts; port++)
+                        {
+                            if(requests[port].empty() || outputQsatisfied[port])
+                                continue;
+                            auto closest = requests[port].lower_bound((lastGrantedAndAccepted[port]+1)%numPorts);
+                            if(closest==requests[port].end())
+                            {
+                                // loop around and choose the first
+                                closest = requests[port].begin();
+                            }
+
+                            // now closest is the candidate for grant
+                            // selectedPort[port] = *closest;
+                            grants[*closest].push_back(port);
+                        }
+
+                        /////////// ACCEPT PHASE /////////////
+
+                        bool noChange = true;
+
+                        for(int port=0; port<numPorts; port++)
+                        {
+                            if(grants[port].empty())
+                                continue;
+                            auto closest = std::lower_bound(grants[port].begin(), grants[port].end(), (lastGrantedAndAccepted[port]+1)%numPorts);
+                            if(closest==grants[port].end())
+                                closest = grants[port].begin();
+
+                            // now accept the next highest priority connection (Round Robin)
+                            finalAccepted[port] = *closest;
+                            lastGrantedAndAccepted[*closest] = port;
+                            lastAccepted[port] = *closest;
+                            
+                            // set the output and input ports to satisfied
+                            inputQsatisfied[port] = true;
+                            outputQsatisfied[*closest] = true;
+
+                            noChange = false;
+                        }
+
+                        if(noChange)
+                            break;
+                    }
+
+                    std::vector<std::optional<Packet>> finalOutputs;
+                    for(int port=0; port<numPorts; port++)
+                    {
+                        if(finalAccepted[port]==-1)
+                        {
+                            finalOutputs.push_back(std::nullopt);
+                            continue;
+                        }
+
+                        // otherwise check the first packet for that port and pick it
+                        bool found = false;
+                        for(int i=0; i<inputQs[port].size(); i++)
+                        {
+                            if(inputQs[port][i].outputPort==finalAccepted[port])
+                            {
+                                // found the needed packet
+                                finalOutputs.push_back(inputQs[port][i]);
+                                inputQs[port].erase(inputQs[port].begin()+i);   // remove that packet from the input queue
+
+                                found = true;
+                            }
+                        }
+
+                        assert(found);
+                    }
+
+                    // send the packets to the output ports
+                    for(int i=0; i<numPorts; i++)
+                    {
+                        if(finalOutputs[i].has_value() && outputQs[i].size()<bufferSize)
+                            outputQs[i].push_back(finalOutputs[i].value());
+                    }
                 }
             }
         }
@@ -128,7 +252,7 @@ class Switch
                 else
                 {
                     ans.push_back(q.front());
-                    q.pop();
+                    q.pop_front();
                 }
             }
             return ans;
@@ -147,8 +271,8 @@ class Switch
 
 
         // input queues
-        std::vector<std::queue<Packet>> inputQs;
+        std::vector<std::deque<Packet>> inputQs;
 
         // output queues
-        std::vector<std::queue<Packet>> outputQs;
+        std::vector<std::deque<Packet>> outputQs;
 };
