@@ -38,13 +38,13 @@ namespace Simulation{
             std::cout << delay << ",";
             pkt_delay += delay; 
         }
-        double avg_plt_delay = pkt_delay /= total_pkts_generated;
+        double avg_plt_delay = pkt_delay /= delays.size();
 
         double drop_prob = 1 - delays.size() / (double) total_pkts_generated;
 
         double link_utilisation = delays.size() / ((double) conf.maxslots * conf.numPorts);
 
-        std::ofstream file(conf.outputfilename);
+        std::ofstream file(conf.outputfilename, std::ofstream::app);
         assert(file.is_open());
 
         file << conf.numPorts << "," << conf.packetgenprob << ",";

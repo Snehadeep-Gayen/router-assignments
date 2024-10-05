@@ -1,4 +1,5 @@
 #include "TrafficGenerator.hpp"
+#include <iostream>
 
 TrafficGenerator::TrafficGenerator(int numPorts, float probab) : numPorts(numPorts), prob(probab)
 {
@@ -28,6 +29,22 @@ std::vector<std::optional<Packet>> TrafficGenerator::GeneratePackets(int slot)
             };
         }
     }
+    std::cout << "==========================================\n";
+    std::cout << "Packet schedule at slot #" << slot << "\n";
+    std::cout << "==========================================\n";
+    for(int i=0; i<numPorts; i++)
+    {
+        std::cout << "Port " << i << ": ";
+        if(pkts[i].has_value())
+        {
+            std::cout << pkts[i]->outputPort << "\n";
+        }
+        else
+        {
+            std::cout << "NULL\n";
+        }
+    }
+    std::cout << "==========================================\n";
 
     return pkts;
 }

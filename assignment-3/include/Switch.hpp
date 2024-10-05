@@ -74,9 +74,11 @@ class Switch
                 }
 
                 // send the packets to the output ports
-                for(int i=0; i<numPorts; i++)
+                for(int i=0; i<numPorts; i++){
+                    assert(outputQs.empty());
                     if(finalOutputs[i].has_value() && outputQs[i].size()<bufferSize)
                         outputQs[i].push(finalOutputs[i].value());
+                }
             }
             else if(type == QueueType::INQ)
             {
@@ -88,8 +90,10 @@ class Switch
 
                 // choose a random packet and drop others
                 for(auto& cnt : pktcnt)
-                    if(cnt>0)
-                        cnt = random() % cnt;
+                    if(cnt>0){
+                        // cnt = random() % cnt;
+                        cnt=0;  // drop the first packet always
+                    }
 
                 std::vector<std::optional<Packet>> finalOutputs;
                 std::for_each(inputQs.begin(), inputQs.end(), [&pktcnt, &finalOutputs](auto& pktQ){
@@ -105,9 +109,11 @@ class Switch
                 });
 
                 // send the packets to the output ports
-                for(int i=0; i<numPorts; i++)
+                for(int i=0; i<numPorts; i++){
+                    assert(outputQs.empty());
                     if(finalOutputs[i].has_value() && outputQs[i].size()<bufferSize)
                         outputQs[i].push(finalOutputs[i].value());
+                }
             }
         }
 
@@ -125,7 +131,6 @@ class Switch
                     q.pop();
                 }
             }
-
             return ans;
         }
 
