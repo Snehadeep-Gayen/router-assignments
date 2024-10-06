@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set project name and C++ standard
-project(PacketQueueing VERSION 1.0 LANGUAGES CXX)
+project(routing VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -16,7 +16,7 @@ include_directories(include parser-lib/include)
 include_directories(include include)
 
 # Add executable for the main application
-add_executable(PacketQueueing src/main.cpp)
+add_executable(routing src/main.cpp)
 
 # Source files for the main executable
 set(SOURCES
@@ -25,24 +25,24 @@ set(SOURCES
     src/TrafficGenerator.cpp
 )
 
-target_sources(PacketQueueing PRIVATE ${SOURCES})
+target_sources(routing PRIVATE ${SOURCES})
 
 # Link the parser-lib to the main executable
 add_subdirectory(parser-lib)
 
-target_link_libraries(PacketQueueing PRIVATE ParserLibrary)
+target_link_libraries(routing PRIVATE ParserLibrary)
 
 # Optionally enable testing
 enable_testing()
 
 # Install rules (optional)
-install(TARGETS PacketQueueing DESTINATION bin)
+install(TARGETS routing DESTINATION bin)
 
 # Copy the params.json file to the build directory
-add_custom_command(TARGET PacketQueueing POST_BUILD
+add_custom_command(TARGET routing POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_SOURCE_DIR}/src/params.json
-    $<TARGET_FILE_DIR:PacketQueueing>/params.json
+    $<TARGET_FILE_DIR:routing>/params.json
 )
 
 

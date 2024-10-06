@@ -77,7 +77,7 @@ class Switch
 
                 // send the packets to the output ports
                 for(int i=0; i<numPorts; i++){
-                    assert(outputQs.empty());
+                    assert(outputQs[i].empty());
                     if(finalOutputs[i].has_value() && outputQs[i].size()<bufferSize)
                         outputQs[i].push_back(finalOutputs[i].value());
                 }
@@ -112,7 +112,7 @@ class Switch
 
                 // send the packets to the output ports
                 for(int i=0; i<numPorts; i++){
-                    assert(outputQs.empty());
+                    assert(outputQs[i].empty());
                     if(finalOutputs[i].has_value() && outputQs[i].size()<bufferSize)
                         outputQs[i].push_back(finalOutputs[i].value());
                 }

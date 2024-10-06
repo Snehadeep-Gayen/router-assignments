@@ -31,14 +31,25 @@ struct Simulation::Config prepareConfig(std::unordered_map<std::string, CommandL
     Logging::LOGI(CONFIG_LOGM, "Starting argMap to Config conversion");
     
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - N ");
-	std::optional<CommandLine::ArgumentType> argVal = argMap.at("N").getArg();
-	assert(argVal.has_value());
-	cfg.numPorts = std::get<int>(argVal.value());
+    std::optional<CommandLine::ArgumentType> argVal;
+    if(argMap.contains("N"))
+    {
+        argVal = argMap.at("N").getArg();
+        if(argVal.has_value())
+            cfg.numPorts = std::get<int>(argVal.value());
+    }
+    else
+        cfg.numPorts = 8;
 
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - B ");
-	argVal = argMap.at("B").getArg();
-	assert(argVal.has_value());
-	cfg.buffersize = std::get<int>(argVal.value());
+    if(argMap.contains("B"))
+    {
+        argVal = argMap.at("B").getArg();
+        assert(argVal.has_value());
+        cfg.buffersize = std::get<int>(argVal.value());
+    }
+    else
+        cfg.buffersize = 10;
 
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - L ");
 	argVal = argMap.at("L").getArg();
@@ -51,26 +62,42 @@ struct Simulation::Config prepareConfig(std::unordered_map<std::string, CommandL
 	cfg.K = std::get<int>(argVal.value());
 
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - T ");
-	argVal = argMap.at("T").getArg();
-	assert(argVal.has_value());
-	cfg.maxslots = std::get<int>(argVal.value());
+    if(argMap.contains("T"))
+    {
+        argVal = argMap.at("T").getArg();
+        assert(argVal.has_value());
+        cfg.maxslots = std::get<int>(argVal.value());
+    }
+    else
+        cfg.maxslots = 10000;
 
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - p ");
-	argVal = argMap.at("p").getArg();
-	assert(argVal.has_value());
-	cfg.packetgenprob = std::get<double>(argVal.value());
+    if(argMap.contains("p"))
+    {
+        argVal = argMap.at("p").getArg();
+        assert(argVal.has_value());
+        cfg.packetgenprob = std::get<double>(argVal.value());
+    }
+    else
+        cfg.packetgenprob = 0.5;
 
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - q ");
-	argVal = argMap.at("q").getArg();
-	assert(argVal.has_value());
-    std::string flag = std::get<std::string>(argVal.value());
-    assert(flag=="NOQ" || flag=="INQ" || flag=="CIOQ");
-    if(flag=="NOQ")
-        cfg.qtype = QueueType::NOQ;
-    else if(flag=="INQ")
+
+    if(argMap.contains("q"))
+    {
+        argVal = argMap.at("q").getArg();
+        assert(argVal.has_value());
+        std::string flag = std::get<std::string>(argVal.value());
+        assert(flag=="NOQ" || flag=="INQ" || flag=="CIOQ");
+        if(flag=="NOQ")
+            cfg.qtype = QueueType::NOQ;
+        else if(flag=="INQ")
+            cfg.qtype = QueueType::INQ;
+        else 
+            cfg.qtype = QueueType::CIOQ;
+    }
+    else    
         cfg.qtype = QueueType::INQ;
-    else 
-        cfg.qtype = QueueType::CIOQ;
 
     Logging::LOGI(CONFIG_LOGM, "Checking first argument - o ");
 	argVal = argMap.at("o").getArg();
