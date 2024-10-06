@@ -13,6 +13,7 @@ def run_simulation(
         maxslots=10000                # Default max simulation time slots is 10,000
     ):
 
+    print(outputfile)
     # Construct the command to run the binary with specified arguments
     binary = './routing'
     cmd = [
@@ -26,6 +27,8 @@ def run_simulation(
         '-o', outputfile,
         '-T', str(maxslots)
     ]
+
+    print(cmd)
 
     # Run the binary and wait for it to finish
     result = subprocess.run(cmd, capture_output=True, text=True)

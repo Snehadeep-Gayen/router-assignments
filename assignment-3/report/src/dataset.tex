@@ -103,24 +103,18 @@ Packet switches and routers use a switched backplane based on simple 2x2 crossba
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{figures/fig1/fig1a.png}
-            \caption{Utilisation}
-            \label{fig:utilisation}
         \end{subfigure}
         \hfill
         % Second figure (figures/fig1/fig1b)
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{figures/fig1/fig1b.png}
-            \caption{Drop Probability}
-            \label{fig:drop_prob}
         \end{subfigure}
         \hfill
         % Third figure (figures/fig1/fig1c)
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{figures/fig1/fig1c.png}
-            \caption{Wait Time}
-            \label{fig:wait_time}
         \end{subfigure}
         
         \caption{Comparing the different Queueing algorithms}
@@ -129,7 +123,7 @@ Packet switches and routers use a switched backplane based on simple 2x2 crossba
 
     The above figure compares the link utilisation, drop probability and waiting time for the different algorithms with default parameters. For CIOQ, $K=4$ and $L=6$ was chosen. 
     \begin{subsubsection}{Utilisation}
-        From the figure we see that iSLIP algorithm has the best utilisation and increasing linearly with the increase in probability. As derived in class, we see that NOQ has a saturation utilisation of $64\%$ while INQ can only have a maximum utilisation of $58.6\%$.
+        From the figure we see that iSLIP algorithm has the best utilisation and increasing linearly with the increase in probability. Also we see that the values for $p=1$ \textbf{agree with the theoretical maximum utilisation of $64\%$ for NOQ and $58.6\%$ for INQ}.
         One important insight from this is that although NOQ outperforms INQ, at lower loads, the INQ gives a much better utilisation than NOQ. 
     \end{subsubsection}
 
@@ -143,9 +137,73 @@ Packet switches and routers use a switched backplane based on simple 2x2 crossba
 
 \end{subsection}
 
-\begin{subsection}
+\begin{subsection}{Performance Graphs}
+    The following graphs show the performance of the three algorithms for the following values:
+    \begin{multicols}{2}
+        \begin{itemize}
+            \item Number of Ports (\(N\)):
+            \begin{itemize}
+                \item \(N = 32\)
+                \item \(N = 64\)
+            \end{itemize}
+            \item Packet Generation Probability (\(p\)):
+            \begin{itemize}
+                \item \(p \in \{0.4, 0.6, 0.8, 1.0\}\)
+            \end{itemize}
+        \end{itemize}
 
-\end{subsection}
+        \begin{itemize}
+            \item Parameter \(K\) for CIOQ:
+            \begin{itemize}
+                \item \(K \in \{0.4, 0.7, 1.0\} \times N\)
+            \end{itemize}
+            \item Parameter \(L\) for CIOQ:
+            \begin{itemize}
+                \item \(L \in \{0.4, 0.7, 1.0\} \times N\)
+            \end{itemize}
+        \end{itemize}
+    \end{multicols}
+
+    \begin{figure}[htbp]
+        \centering
+        % For N=32
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{./figures/fig2/utilization_plot_N_32.png}
+            \caption{Utilization for \(N = 32\)}
+            \label{fig:utilization_32}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{./figures/fig2/delay_plot_N_32.png}
+            \caption{Delay for \(N = 32\)}
+            \label{fig:delay_32}
+        \end{subfigure}
+
+        \vspace{0.5cm} % Space between rows
+
+        % For N=64
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{./figures/fig2/utilization_plot_N_64.png}
+            \caption{Utilization for \(N = 64\)}
+            \label{fig:utilization_64}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{./figures/fig2/delay_plot_N_64.png}
+            \caption{Delay for \(N = 64\)}
+            \label{fig:delay_64}
+        \end{subfigure}
+
+        \caption{Performance graphs for different values of \(N\).}
+        \label{fig:performance_graphs}
+    \end{figure}
+
+
+    \end{subsection}
     
 
 \end{section}
