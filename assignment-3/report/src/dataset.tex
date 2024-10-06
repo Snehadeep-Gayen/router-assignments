@@ -44,7 +44,9 @@ Packet switches and routers use a switched backplane based on simple 2x2 crossba
 
 \end{section}
 
+\newpage
 \begin{section}{iSLIP Algorithm \cite{769767}}
+
     \begin{subsection}{Algorithm}
         \begin{algorithm}[h!]
             \caption{iSLIP Algorithm}
@@ -87,6 +89,88 @@ Packet switches and routers use a switched backplane based on simple 2x2 crossba
     \end{subsection}
 
     \begin{subsection}{Example Run}
+        Consider the following example for the iSLIP algorithm. Initial state of all the input queues is shown below. Assume that initially all the round robin (RR) pointer are initialised to 0. Ports are considered to be 0-indexed, that is, after a packet from the $i$th input port is accepted to the $j$th output port, the RR pointer of the $i$th input port will be set to $j$ and the RR pointer of the $j$th output port will be set to $i$. For this example, $N=4$ and $L=2$, that is, the first two packets in each port is considered by the algorithm.\\
+
+        \begin{table}[h!]
+            \centering
+            \caption{Initial State of the Switch}
+            \begin{tabular}{|c|c|c|c|c|}
+                \hline
+                \textbf{Input Port} & \textbf{Queue State} & \textbf{RR Pointer (Input)} & \textbf{RR Pointer (Output)} \\ \hline
+                0 & [Packet 1, Packet 2] & 0 & 0 \\ \hline
+                1 & [Packet 3, Packet 2] & 0 & 0 \\ \hline
+                2 & [Packet 3, Packet 0] & 0 & 0 \\ \hline
+                3 & [Packet 0, Packet 1] & 0 & 0 \\ \hline
+            \end{tabular}
+            \label{tab:switch_state}
+        \end{table}
+
+        In the first iteration these are the grants received each output port and the acceptances issued by each input port. 
+
+        \begin{table}[h!]
+            \centering
+            \caption{Grants Received and Acceptances Issued in the First Iteration}
+            \begin{tabular}{|c|c|c|c|}
+                \hline
+                \textbf{Output Port} & \textbf{Grant Received From} & \textbf{Input Port} & \textbf{Accepts Received} \\ \hline
+                0 & Input Port 2 and 3 & 0 & Output Port 1 and 2 (1 accepted) \\ \hline
+                1 & Input Port 0 and 3 & 1 & Output port 3 (3 accepted)\\ \hline
+                2 & Input Port 0 and 1 & 2 & Output Port 0 (0 accepted)\\ \hline
+                3 & Input Port 1 and 2 & 3 & None \\ \hline
+            \end{tabular}
+            \label{tab:grants_acceptances}
+        \end{table}
+
+        As we can see, each Output ports receives two grants, for each of the two packets stored among the $NL$ packets in the input queues, destined to that particular output port. Each output port then selects the next packet in RR fashion after the RR pointer and sends a accept request to the corresponding input port. Each input port then selects the next packet in RR fashion again according to its own RR pointers. \\
+        Thus after this iteration, the matching of input and output ports is ${(0, 1), (1, 3), (2, 0)}$. Thus the corresponding RR pointers of the ports are updated as follows:
+
+        \begin{table}[h!]
+            \centering
+            \caption{Initial State of the Switch}
+            \begin{tabular}{|c|c|c|c|c|}
+                \hline
+                \textbf{Input Port} & \textbf{Queue State} & \textbf{RR Pointer (Input)} & \textbf{RR Pointer (Output)} \\ \hline
+                0 & [\sout{Packet 1}, Packet 2] & 1 & 2 \\ \hline
+                1 & [\sout{Packet 3}, Packet 2] & 3 & 0 \\ \hline
+                2 & [Packet 3, \sout{Packet 0}] & 0 & 0 \\ \hline
+                3 & [Packet 0, Packet 1] & 0 & 1 \\ \hline
+            \end{tabular}
+            \label{tab:switch_state}
+        \end{table}
+
+        In the next iteration, only the input ports, and the output ports which are not yet matched are considered. The grant table is described below:
+
+
+        \begin{table}[h!]
+            \centering
+            \caption{Grants Received and Acceptances Issued in the First Iteration}
+            \begin{tabular}{|c|c|c|c|}
+                \hline
+                \textbf{Output Port} & \textbf{Grant Received From} & \textbf{Input Port} & \textbf{Accepts Received} \\ \hline
+                0 & Input Port 3 & 0 & None \\ \hline
+                1 & Input Port 3 & 1 & None\\ \hline
+                2 & None & 2 & None \\ \hline
+                3 & None & 3 & None \\ \hline
+            \end{tabular}
+            \label{tab:grants_acceptances}
+        \end{table}
+
+        Since the output ports which received the grants are already matched, there are no Acceptance issued, and the matching remains unaltered. Thus, the iterations stop and the following mapping of ports is output.
+
+\begin{table}[h!]
+    \centering
+    \caption{Final Mapping of Input and Output Ports}
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Input Port} & \textbf{Output Port} \\ \hline
+        0 & 1 \\ \hline
+        1 & 3 \\ \hline
+        2 & 0 \\ \hline
+        3 & None \\ \hline
+    \end{tabular}
+    \label{tab:final_mapping}
+\end{table}
+
 
     \end{subsection}
 
@@ -201,7 +285,14 @@ Packet switches and routers use a switched backplane based on simple 2x2 crossba
         \caption{Performance graphs for different values of \(N\).}
         \label{fig:performance_graphs}
     \end{figure}
-
+    
+    The above graphs can be interpreted as follows:
+    \begin{itemize}
+        \item As depicted in the figure above, the CIOQ link utilisation and packet delay achieves maximum theoretical value of $p$ (that is, along $y=x$ line), and packet delay of $1$ for $K=0.4, L=0.4$ itself. Therefore, increasing $K$ or $L$ further will not improve the statistics any further. Thus, only a few curves for different values of $L$ is plotted for clarity sake. 
+        \item As we can see from the figure above, the utilisation of CIOQ is best. For lower loads (values of $p$), INQ performs better than NOQ, but for higher values NOQ performs better. 
+        \item We also see that the delay of CIOQ and NOQ both are 1, but for INQ, the delay increases a lot with higher values of $P$.
+        \item Another important observation is that, for $N=32$ and $N=64$, the graphs are exactly identical. This is probably because we are comparing the averages over a long time period, with $T=10000$ time slots and a large buffer size of $100$.
+    \end{itemize}
 
     \end{subsection}
     

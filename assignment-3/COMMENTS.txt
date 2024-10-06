@@ -1,0 +1,1 @@
+All code is written by me. Kindly run the tests given to ensure that the probability generation is being done correctly on your machine. Further kindly ensure that the `params.json` file is the in the same folder as the binary. 

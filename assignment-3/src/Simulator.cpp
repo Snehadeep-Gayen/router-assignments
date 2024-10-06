@@ -69,10 +69,10 @@ namespace Simulation{
 
         file << "," << avg_plt_delay << "," << link_utilisation;
 
-        // if(conf.qtype == QueueType::CIOQ)
-        // {
+        if(conf.qtype == QueueType::CIOQ)
+        {
             file << "," << drop_prob;
-        // } 
+        } 
 
         file << "\n";
 
