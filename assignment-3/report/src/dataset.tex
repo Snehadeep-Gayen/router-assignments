@@ -1,42 +1,92 @@
 
 % Begin with describing virtual circuit switching
-\begin{section}{Introduction: Packet Queueing in Switches}
-
-
+\begin{section}{Introduction: Packet Scheduling in Switches}
+Packet switches and routers use a switched backplane based on simple 2x2 crossbar switches. Most often, these systems use input queues to hold incoming packets waiting to get switched through the switching fabric to their destined output ports. The packet scheduling \& queueing algorithm used for this can greatly affect the performance of the switch. This assignment explores the popular iSLIP algorithm and compares them to classical No-Queuing (NOQ) and Input Queueing with Head-of-Line Blocking cases.
 \end{section}
 
 
 \begin{section}{Challenges}
-
+ Input Queueing with a simple First-In First-Out scheduling is known to suffer from Head-of-Line blocking effect in which, a blockage at the HOL make all the subsequent waiting packets in the queue suffer. Further, while guaranteeing high utilisation and low drop probability, the scheduling algorithm must also respect flow-wise packet order, guarantee fairness and must adapt quickly to changes in the traffic or bursts in the network. All these challenges, make it difficult to design scheduling algorithms for packet switches. 
 \end{section}
 
-\begin{section}{Experiment}
-
-
+\begin{section}{Simulation Experiment}
+    This experiment designs a switch simulator to test out different scheduling algorithms, and compares their drop probabilities, delays and link utilisation. Further the simulator is flexible to handle many different parameters and is easily extensible to other scheduling algorithms.
 \end{section}
 
 \begin{section}{Variables of the Experiment}
-
-    \begin{subsection}{Packet Generation Probability $p$}
-        Each input port generates a packet in a time slot with a Bernoulli$(p)$ distribution.
+    \begin{subsection}{Number of Switch Ports $N$}
+        The switch is assumed to have $N$ input ports and $N$ output ports, numbered from $0$ to $N-1$. The default value is $8$.
     \end{subsection}
-
-    \begin{subsection}{Buffersize $B$}
-    Each input and output can hold upto $B$ packets
+    
+    \begin{subsection}{Buffer Size $B$}
+        Each input and output port can hold up to $B$ fixed-length packets. The default value is $10$.
+    \end{subsection}
+    
+    \begin{subsection}{Packet Generation Probability $p$}
+        Each input port generates a packet in a time slot according to a Bernoulli$(p)$ distribution, where $p$ denotes the probability that a packet is generated. The default value is $0.5$.
+    \end{subsection}
+    
+    \begin{subsection}{Queue Type $q$}
+        This argument specifies the type of queue used for packet handling. Possible values include NOQ (No Queuing), INQ (Input Queuing), and CIOQ (Combined Input and Output Queuing). The default queue type is INQ.
+    \end{subsection}
+    
+    \begin{subsection}{Knockout $K$}
+        This parameter is specific to the CIOQ queue type and determines the backplane speedup compared to the output link transmission time. $K=2$ means that in one transmission time unit of the output port, the backplane can switch two rounds of packets. The default value is $1$.
+    \end{subsection}
+    
+    \begin{subsection}{Input Queue Length Lookahead $L$}
+        This parameter is also specific to the CIOQ queue type and defines the length of the input queue to be considered for packet scheduling. $L=B$ means that all the packets in the input queue will be considered for scheduling. The default value is $1$.
+    \end{subsection}
+    
+    \begin{subsection}{Maximum Slots $T$}
+        This argument specifies the total number of time slots for the simulation. Each time slot corresponds to the transmission time of one packet. The default value is $10,000$.
     \end{subsection}
 
 \end{section}
 
-\begin{section}{iSLIP Algorithm}
+\begin{section}{iSLIP Algorithm \cite{769767}}
     \begin{subsection}{Algorithm}
-        
+        \begin{algorithm}[h!]
+            \caption{iSLIP Algorithm}
+            \begin{algorithmic}[1]
+                \State \textbf{Initialize:} All inputs and outputs are unmatched
+                \Repeat
+                    \State \textbf{Step 1: Request}
+                    \For{each unmatched input}
+                        \For{each output with a queued cell}
+                            \State Send a request to the output
+                        \EndFor
+                    \EndFor
+                    
+                    \State \textbf{Step 2: Grant}
+                    \For{each unmatched output}
+                        \If{output received requests}
+                            \State Grant to the next input in round robin order
+                        \EndIf
+                    \EndFor
+                    
+                    \State \textbf{Step 3: Accept}
+                    \For{each unmatched input}
+                        \If{input receives a grant}
+                            \State Accept the grant in round robin order
+                            \State Update round robin pointers for both input and output
+                        \EndIf
+                    \EndFor
+                \Until{no change in schedule}
+            \end{algorithmic}
+        \end{algorithm}
     \end{subsection}
 
     \begin{subsection}{Time Complexity}
-        
+        Using various simualations with a $N\times N$ switch, the authors suggest that the iSLIP algorithm converges in $\log_2 N$ steps \cite{1}. However, they have not been able to prove the bound $\mathbf{E}(I) \leq log_2 N$. 
+        Note that this is a much faster algorithm that classical Maximum Weight Matching scheduling algorithm which requires $\mathcal{O}(N^3)$ time to converge, and has time complexity comparable to Parallel Iterative Matching algorithm which is proved to converge within $\log_2 N + \frac{4}{3}$ iterations on average \cite{1} .
     \end{subsection}
 
     \begin{subsection}{Salient Features}
+
+    \end{subsection}
+
+    \begin{subsection}{Example Run}
 
     \end{subsection}
 
@@ -45,7 +95,9 @@
 
 \begin{section}{Results}
 
-    \begin{figure}[htbp]
+    \begin{subsection}{Comparison with different probabilities}
+
+    \begin{figure}[h!]
         \centering
         % First figure (fig1a)
         \begin{subfigure}[b]{0.45\textwidth}
@@ -76,22 +128,28 @@
     \end{figure}
 
     The above figure compares the link utilisation, drop probability and waiting time for the different algorithms with default parameters. For CIOQ, $K=4$ and $L=6$ was chosen. 
-    \begin{subsection}{Utilisation}
+    \begin{subsubsection}{Utilisation}
         From the figure we see that iSLIP algorithm has the best utilisation and increasing linearly with the increase in probability. As derived in class, we see that NOQ has a saturation utilisation of $64\%$ while INQ can only have a maximum utilisation of $58.6\%$.
         One important insight from this is that although NOQ outperforms INQ, at lower loads, the INQ gives a much better utilisation than NOQ. 
-    \end{subsection}
+    \end{subsubsection}
 
-    \begin{subsection}{Drop Probability}
+    \begin{subsubsection}{Drop Probability}
         CIOQ with iSLIP algorithm has as a consistent nearly 0 drop probability, whereas NOQ and IOQ have drop probabilities reaching to upto 40\% for $p=1$. Again, here INQ outperforms NOQ under low loads, but becomes worse under higher loads.
-    \end{subsection}
+    \end{subsubsection}
 
-    \begin{subsection}{Waiting Time}
+    \begin{subsubsection}{Waiting Time}
     The waiting time for NOQ and CIOQ is consistently 1 time slot. But for INQ, the wait time increase approximately linearly after $p=0.5$, and reached a maximum of 1600 time slots. Thus, considering waiting time as the metric, NOQ and CIOQ are preferred.
-    \end{subsection}
+    \end{subsubsection}
+
+\end{subsection}
+
+\begin{subsection}
+
+\end{subsection}
     
 
 \end{section}
 
 \begin{section}{Conclusion}
-
+    The iSLIP performs much better than No Queue (NOQ) and Input Queueing with FIFO scheduling (INQ) on link utilisation and drop probability metrics. Further it also achieves packet delays of nearly 1 time slot not unlike NOQ. Among INQ and NOQ, INQ suffers from much higher packet delays. At lesser loads, INQ outperforms NOQ in drop probability and link utilisation, but NOQ surpasses INQ at higher loads, as is expected from the theoretical results.  
 \end{section}
