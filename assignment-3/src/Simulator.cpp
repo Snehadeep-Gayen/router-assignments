@@ -54,12 +54,25 @@ namespace Simulation{
             file << conf.L << "," << conf.K << ",";
         } 
 
-        file << conf.qtype << "," << avg_plt_delay << "," << link_utilisation;
-
-        if(conf.qtype == QueueType::CIOQ)
+        if(conf.qtype == QueueType::NOQ)
         {
+            file << "NOQ";
+        }
+        else if(conf.qtype == QueueType::INQ)
+        {
+            file << "INQ";
+        }
+        else if(conf.qtype == QueueType::CIOQ)
+        {
+            file << "CIOQ";
+        }
+
+        file << "," << avg_plt_delay << "," << link_utilisation;
+
+        // if(conf.qtype == QueueType::CIOQ)
+        // {
             file << "," << drop_prob;
-        } 
+        // } 
 
         file << "\n";
 

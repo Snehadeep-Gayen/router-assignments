@@ -1,0 +1,44 @@
+%Seitengroesse, Schriftgroesse und Vorlage (unbedingt noetig)
+\documentclass[a4paper, 12pt]{article}
+
+%Benoetigte Pakete werden (zur Uebersicht) in einer anderen Datei geladen
+\input{src/packages}
+
+%Gestaltungen (auch in anderer Datei moeglich)
+\fancyhf{} %Überschreibt den Kopfzeilen- und Fusszeilenstil der Vorlage
+\rfoot{\thepage} %Seitenzahl unten rechts
+\renewcommand{\headrulewidth}{0pt} %Loescht die Linie in der Kopfzeile aus der Vorlage
+
+%Hier endet der Vorspann (fuer seitenuebergreifende Entscheidungen)
+\begin{document}
+
+%Das Titelblatt wird zur Uebersicht in einer anderen Datei gestaltet
+\pagenumbering{gobble}
+\input{src/titlepage}
+\pagestyle{fancy}
+\thispagestyle{empty}
+
+% BASIEREND AUF: https://www.overleaf.com/latex/templates/facharbeit-polonaise-rupprecht-gymnasium/cjxzxppjgybx
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Ab hier Inhalt einfügen%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newpage
+% \include{src/01Kurzfassung}
+% \newpage
+
+%Inhaltsverzeichnis wird automatisch erzeugt
+%Bei Änderungen muss u.U. mehrfach kompiliert werden
+% \tableofcontents	
+
+\newpage
+\pagenumbering{arabic}
+% \setcounter{page}{6} %Erst hier soll die Nummerierung der Seiten beginnen
+
+\input{src/Dataset}
+
+% \newpage
+% \section*{Question 2}
+% \input{src/Q2}
+
+\end{document}
