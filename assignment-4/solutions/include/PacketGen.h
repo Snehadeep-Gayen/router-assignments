@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <chrono>
 #include <iomanip>
@@ -7,10 +9,8 @@
 #include <thread>
 #include "Scheduler.h"
 
-using simtime = std::chrono::time_point<std::chrono::steady_clock>;
 
-// number of milliseconds in one tick
-#define TICKSIZE 10000
+using simtime = std::chrono::time_point<std::chrono::steady_clock>;
 
 namespace PacketGen
 {
@@ -21,88 +21,36 @@ namespace PacketGen
         int p;  // number of packets generated per unit time
         int lmin; // minimum length of the packet
         int lmax; // maximum length of the packet
-        // length of the packet will be uniformly distributed between min and max length
-        // int w;  // weight of this source, scheduler knows the weights of every guy to avoid faking
-        double startFraction; // time at which this generator should start (reported as the fraction of the total simulation time)
-        double endFraction; // time at which this generator should end (reported as the fraction of the total simulation time)
-
-        // simulation start time
-        std::chrono::time_point<std::chrono::steady_clock> simStart;
+        double startFraction; // start time as a fraction of total simulation time
+        double endFraction; // end time as a fraction of total simulation time
+        std::chrono::time_point<std::chrono::steady_clock> simStart; // simulation start time
     };
 
     class PacketSource
     {
     public:
+        // Constructor
+        PacketSource(PacketSourceConfig conf);
 
-        // Check how to handle start of the the threads at the same time (maybe give the unix timestamp for start time)
+        // Method to join the packet generation thread
+        void join();
 
-        PacketSource(PacketSourceConfig conf) : conf(conf), defaultgen(), expgen(conf.p), lengen(conf.lmin, conf.lmax)
-        {
-            // initialise the random number generator
-            // done
-
-            // start the thread
-            auto actualStart = conf.simStart + std::chrono::milliseconds(uint64_t(TICKSIZE * conf.startFraction * conf.simDuration));
-            auto endTime = conf.simStart + std::chrono::milliseconds(uint64_t(TICKSIZE * conf.endFraction * conf.simDuration));
-            
-            // Start the packet generation thread
-            pktThread = std::thread(&PacketSource::PacketGenThread, this, actualStart, endTime);
-        }
-
-        void join()
-        {
-            if(pktThread.joinable())
-            {
-                pktThread.join();
-            }
-            else 
-            {
-                std::cerr << "Thread is not joinable\n";
-            }
-        }
+        // Scheduler-related variables
+        static std::shared_ptr<std::mutex> schedmutex;
+        static std::shared_ptr<Scheduler> sched;
 
     private:
+        // Packet generation thread function
+        static void PacketGenThread(PacketSource* pktsrc, const simtime startTime, const simtime endTime);
 
-        static void PacketGenThread(std::shared_ptr<PacketSource> pktsrc, const simtime startTime, const simtime endTime)
-        {
-            // sleep until start + starting time of the packet source
-            std::this_thread::sleep_until(startTime);
+        const PacketSourceConfig conf;  // Configuration for the packet source
 
-            while(1)
-            {
-                // generate a random double
-                double nextGen = pktsrc->expgen(pktsrc->defaultgen);
-
-                // sleep for that much time
-                std::this_thread::sleep_for(std::chrono::milliseconds(uint64_t(nextGen * TICKSIZE)));
-
-                if(std::chrono::steady_clock::now()>=endTime)
-                    break;  // stop packet generation
-
-                // generate a random packet length
-                int packetlen = pktsrc->lengen(pktsrc->defaultgen); 
-
-                // acquire scheduler lock and invoke the scheduler
-                schedmutex->lock();
-                sched->addPacket(pktsrc->conf.sourceNumber, packetlen);  // tell the scheduler to do bookkeeping and add the packet to the queue
-                schedmutex->unlock();
-            }
-            
-        }
-
-        const PacketSourceConfig conf;
-
-        // scheduler related stuff
-        static std::shared_ptr<std::mutex> schedmutex;
-        static const std::shared_ptr<Scheduler> sched;
-
-        // RNG related
+        // RNG related variables
         std::default_random_engine defaultgen;
-        std::exponential_distribution<double> expgen;   // interpacket arrival time generator
-        std::uniform_int_distribution<int> lengen; // packet length generator
+        std::exponential_distribution<double> expgen;
+        std::uniform_int_distribution<int> lengen;
 
         // Thread to generate packets
         std::thread pktThread;
     };
-
 }

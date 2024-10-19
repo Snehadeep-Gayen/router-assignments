@@ -1,0 +1,10 @@
+[
+    {
+      "flag": "in",
+      "type": "string"
+    },
+    {
+      "flag": "out",
+      "type": "string"
+    }
+]
