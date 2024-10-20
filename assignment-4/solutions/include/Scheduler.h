@@ -1,66 +1,96 @@
 #pragma once
 
+#include <algorithm>
+#include <cassert>
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <optional>
 #include <queue>
 #include <set>
 #include <vector>
 #include "Packet.h"
+// #include "Simulator.h"
 
 class Scheduler
 {
 public:
 
-    Scheduler(int numSrc, std::vector<float> wts, int ticksize) : ticksize(ticksize), numSrc(numSrc), numPackets(numSrc, 0), weights(wts), flowFinishNumbers(numSrc, -1)
+    Scheduler(int numSrc, std::vector<float> wts, int ticksize, double processingCapacity) : processingCapacity(processingCapacity), ticksize(ticksize), numSrc(numSrc), numPackets(numSrc, 0), weights(wts), flowFinishNumbers(numSrc, -1)
     {   
         roundNumber = 0.0;
         sumActiveWeights = 0.0;
         lastTrigger = std::nullopt;
-
-        // initialise the set
-        for(int i=0; i<numSrc; i++)
-            sortedFlowFinishNumbers.insert({flowFinishNumbers[i], i});
     }
 
     void UpdateRoundNumber()
     {
         if(lastTrigger.has_value())
         {
-            // check for one iterated deletion here
+            // check if all flows are inactive
+            bool all_inactive = std::all_of(flowFinishNumbers.begin(), flowFinishNumbers.end(), [this](double finishNumber){ return finishNumber <= roundNumber; });
+            if(all_inactive)
+            {
+                roundNumber = 0;
+                if(std::abs(sumActiveWeights)>1e-3)
+                {
+                    std::cout << sumActiveWeights << "\n";
+                    exit(0);
+                }
+                sumActiveWeights = 0.0;
+                flowFinishNumbers = std::vector<double>(numSrc, -1);
+                return;
+            }
 
+
+            // check for one iterated deletion here
             const auto& timenow = std::chrono::steady_clock::now();
             double projectedRoundNumber;
             const auto& UpdateProjectedRoundNumber = [&projectedRoundNumber, &timenow, this]()
             {
                 double durationInMillis = std::chrono::duration_cast<std::chrono::duration<double>>(timenow - lastTrigger.value()).count() * 1000 / ticksize;
-                std::cout << "Duration is " << durationInMillis << "\n";
+                if(printStats==0)
+                    std::cout << "Duration is " << durationInMillis << "\n";
                 // std::cout << "Projected Round Number is " << projectedRoundNumber << "\n";
-                projectedRoundNumber = roundNumber + durationInMillis / sumActiveWeights;
+                projectedRoundNumber = roundNumber + durationInMillis / (std::abs(sumActiveWeights)<1e-3?(INFINITY):sumActiveWeights);
             };
             UpdateProjectedRoundNumber();
 
-            auto iter = sortedFlowFinishNumbers.begin();
-            while(iter->first < roundNumber && iter != sortedFlowFinishNumbers.end())
-                iter++;
-            std::vector<std::pair<double, int>> toBeRemoved;
-
-            while(iter!=sortedFlowFinishNumbers.end())
+            // sorted according to finish numbers. Second value is the weight of the flow
+            double sumWeights = 0.0;
+            std::vector<std::pair<double, double>> sortedFlows;
+            for(int src=0; src<numSrc; src++)
+                if(flowFinishNumbers[src]>roundNumber){
+                    sumWeights += weights[src];
+                    sortedFlows.push_back({flowFinishNumbers[src], weights[src]});
+                }
+            std::sort(sortedFlows.begin(), sortedFlows.end());
+            if(std::abs(sumWeights - sumActiveWeights)>1e-3)
             {
-                if(iter->first > projectedRoundNumber)
-                    break;
-
-                // time for iterated deletion
-                toBeRemoved.push_back(*iter);
-                sumActiveWeights -= weights[iter->second];
-
-                UpdateProjectedRoundNumber();
+                std::cout << "Difference in weights\n";
+                std::cout << sumActiveWeights << " " << sumWeights << "\n";
+                exit(0);
             }
 
-            // remove the toBeRemoved entries
-            for(auto entry : toBeRemoved)
+            // iterate and delete
+            double startingRoundNumber = roundNumber;
+            for(auto [finishNumber, weight] : sortedFlows)
             {
-                sortedFlowFinishNumbers.erase(sortedFlowFinishNumbers.find(entry));
+                if(finishNumber<projectedRoundNumber)
+                {
+                    // delete this flow
+                    std::chrono::microseconds microTime (static_cast<int64_t>(((finishNumber - roundNumber) * sumActiveWeights * ticksize * 1000)));
+                    std::chrono::steady_clock::time_point inactiveTime = lastTrigger.value() + microTime;
+                    roundNumber = finishNumber;
+                    lastTrigger = inactiveTime;
+                    sumActiveWeights -= weight;
+
+                    assert(sumActiveWeights>=-1e-3);
+                }
+                else
+                {
+                    break;
+                }
             }
 
             roundNumber = projectedRoundNumber;
@@ -79,9 +109,18 @@ public:
         // std::cout << "Source: " << src << " generated packet of length " << pktlen << "\n";
         numPackets[src]++;
 
+        if(++printStats==1)
+        {
+            std::cout << "Round# =" << roundNumber << "\n";
+            std::cout << "SumWeights =" << sumActiveWeights << "\n";
+            for(int i=0; i<numSrc; i++)
+            {
+                std::cout << "Finish Number for source#" << i <<  " is " << flowFinishNumbers[i] << "\n";
+            }
+            printStats = 0;
+        }
         UpdateRoundNumber();
-        std::cout << "Round# =" << roundNumber << "\n";
-        
+
         // compute the finish number of the new packet
         Packet pkt{
             .sourceNumber = src,
@@ -89,7 +128,7 @@ public:
             .enqTime = std::chrono::steady_clock::now()
         };
 
-        pkt.finishNumber = std::max(roundNumber, flowFinishNumbers[src]) + static_cast<double>(pkt.length) / weights[src];
+        pkt.finishNumber = std::max(roundNumber, flowFinishNumbers[src]) + pkt.length / (processingCapacity * weights[src]);
 
         if(flowFinishNumbers[src]<roundNumber)
         {
@@ -97,12 +136,7 @@ public:
             sumActiveWeights += weights[src];
         }
 
-        if(flowFinishNumbers[src]<pkt.finishNumber)
-        {
-            sortedFlowFinishNumbers.erase(sortedFlowFinishNumbers.find({flowFinishNumbers[src], src}));
-            flowFinishNumbers[src] = pkt.finishNumber;
-            sortedFlowFinishNumbers.insert({flowFinishNumbers[src], src});
-        }
+        flowFinishNumbers[src] = std::max(flowFinishNumbers[src], pkt.finishNumber);    // Max is unnecessary here, it will always be true
 
         // compute finish numbers here
         queue.push(std::move(pkt)); // to avoid copying
@@ -120,9 +154,12 @@ public:
 private:
 
     int ticksize; // number of milliseconds in a tick
+    double processingCapacity;
     int numSrc;
     double roundNumber;
     double sumActiveWeights;
+
+    int printStats = 0;
 
     std::optional<std::chrono::steady_clock::time_point> lastTrigger;
 
@@ -130,7 +167,6 @@ private:
 
     std::vector<float> weights; // stores the weights for every source, indexed by source number
     std::vector<double> flowFinishNumbers; // stores the finish numbers of all the sources, indexed by src numbers
-    std::set<std::pair<double, int>> sortedFlowFinishNumbers;
 
     // now this will 
     std::priority_queue<Packet, std::vector<Packet>, PacketFinishComparator> queue;  // this has to be accessed in the order of finish number
