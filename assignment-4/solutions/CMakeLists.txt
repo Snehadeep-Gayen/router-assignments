@@ -22,6 +22,7 @@ add_executable(wfq)
 set(SOURCES
     src/Main.cpp
     src/PacketGen.cpp
+    src/Scheduler.cpp
 )
 
 target_sources(wfq PRIVATE ${SOURCES})
