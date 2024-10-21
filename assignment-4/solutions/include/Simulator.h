@@ -37,7 +37,9 @@ namespace Simulation{
             {
                 // initial setup
                 std::shared_ptr<Scheduler> schptr = std::make_shared<Scheduler>(conf.n, conf.weights, TICKSIZE, conf.c);
+                PacketGen::PacketSource::schedmutex = Scheduler::schedmutex;
                 PacketGen::PacketSource::sched = schptr;
+                schptr->StartProcessing();
                 assert(conf.n == conf.pktSrcConfigs.size());
                 std::cout << "Starting Packet Sources\n";
 

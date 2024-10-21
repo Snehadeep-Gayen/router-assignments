@@ -4,8 +4,14 @@
 #include <cassert>
 #include <chrono>
 #include <cmath>
+#include <condition_variable>
+#include <iostream>
+#include <memory>
+#include <mutex>
 #include <optional>
 #include <queue>
+#include <ratio>
+#include <thread>
 #include <vector>
 
 // Forward declaration for PacketFinishComparator
@@ -20,9 +26,16 @@ public:
 
   void addPacket(int src, int pktlen);
 
+  void ProcessPacket(int src, int dst);
+
+  void StartProcessing();
+
   ~Scheduler();
 
+  static std::shared_ptr<std::mutex> schedmutex;
+
 private:
+
   int ticksize; // number of milliseconds in a tick
   double processingCapacity;
   int numSrc;
@@ -39,6 +52,34 @@ private:
   std::vector<double> flowFinishNumbers; // stores the finish numbers of all the
                                          // sources, indexed by src numbers
 
-  std::priority_queue<Packet, std::vector<Packet>, PacketFinishComparator>
+  static std::priority_queue<Packet, std::vector<Packet>, PacketFinishComparator>
       queue; // stores packets in the order of finish number
+
+  static std::condition_variable QueueNotEmpty;
+
+  // wakes up, takes the lock, removes an element from queue, returns lock, and sleeps for transmission time
+  // if queue is empty it waits for signal to wake up
+  static void ProcessingThread(int ticksize, int processingCapacity)
+  {
+
+    while (1) 
+    {
+      std::unique_lock<std::mutex> lk(*Scheduler::schedmutex);
+      Scheduler::QueueNotEmpty.wait(lk, []() {
+          return !queue.empty();
+      }); // check if the function is correct or not
+
+      // remove the first Packet from the queue
+      std::cout << queue.size() << " is queue size \n";
+
+      Packet pkt = queue.top();
+      queue.pop();
+
+      lk.unlock();
+      std::this_thread::sleep_for(std::chrono::milliseconds(ticksize*pkt.length/processingCapacity));
+    }
+  }
+
+  std::thread processingThread;
+
 };
