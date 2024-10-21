@@ -20,7 +20,7 @@ class PacketFinishComparator;
 class Scheduler {
 public:
   Scheduler(int numSrc, std::vector<float> wts, int ticksize,
-            double processingCapacity);
+            double processingCapacity, int queueCapacity, int simulationTicks);
 
   void UpdateRoundNumber();
 
@@ -35,9 +35,10 @@ public:
   static std::shared_ptr<std::mutex> schedmutex;
 
 private:
-
   int ticksize; // number of milliseconds in a tick
   double processingCapacity;
+  int queueCapacity;
+  int simulationTicks;
   int numSrc;
   double roundNumber;
   double sumActiveWeights;
@@ -52,34 +53,37 @@ private:
   std::vector<double> flowFinishNumbers; // stores the finish numbers of all the
                                          // sources, indexed by src numbers
 
-  static std::priority_queue<Packet, std::vector<Packet>, PacketFinishComparator>
+  static std::priority_queue<Packet, std::vector<Packet>,
+                             PacketFinishComparator>
       queue; // stores packets in the order of finish number
 
   static std::condition_variable QueueNotEmpty;
 
-  // wakes up, takes the lock, removes an element from queue, returns lock, and sleeps for transmission time
-  // if queue is empty it waits for signal to wake up
-  static void ProcessingThread(int ticksize, int processingCapacity)
-  {
+  // wakes up, takes the lock, removes an element from queue, returns lock, and
+  // sleeps for transmission time if queue is empty it waits for signal to wake
+  // up
+  static void ProcessingThread(int ticksize, int processingCapacity, int simulationTicks) {
 
-    while (1) 
-    {
+    std::chrono::milliseconds transmissionTime;
+    std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(ticksize * simulationTicks);
+    while (std::chrono::steady_clock::now() < endTime) {
       std::unique_lock<std::mutex> lk(*Scheduler::schedmutex);
       Scheduler::QueueNotEmpty.wait(lk, []() {
-          return !queue.empty();
+        return !queue.empty();
       }); // check if the function is correct or not
-
-      // remove the first Packet from the queue
-      std::cout << queue.size() << " is queue size \n";
 
       Packet pkt = queue.top();
       queue.pop();
 
+      pkt.deqTime = std::chrono::steady_clock::now();
+      transmissionTime =
+          std::chrono::milliseconds(ticksize * pkt.length / processingCapacity);
+      pkt.egressTime = pkt.deqTime + transmissionTime;
+
       lk.unlock();
-      std::this_thread::sleep_for(std::chrono::milliseconds(ticksize*pkt.length/processingCapacity));
+      std::this_thread::sleep_for(transmissionTime);
     }
   }
 
   std::thread processingThread;
-
 };

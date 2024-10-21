@@ -14,21 +14,20 @@ std::priority_queue<Packet, std::vector<Packet>, PacketFinishComparator>
 std::condition_variable Scheduler::QueueNotEmpty = {};
 
 Scheduler::Scheduler(int numSrc, std::vector<float> wts, int ticksize,
-                     double processingCapacity)
+                     double processingCapacity, int queueCapacity,
+                     int simulationTicks)
     : processingCapacity(processingCapacity), ticksize(ticksize),
+      queueCapacity(queueCapacity), simulationTicks(simulationTicks),
       numSrc(numSrc), numPackets(numSrc, 0), weights(wts),
-      flowFinishNumbers(numSrc, -1) 
-{
+      flowFinishNumbers(numSrc, -1) {
   roundNumber = 0.0;
   sumActiveWeights = 0.0;
   lastTrigger = std::nullopt;
-
-  // start the processing thread
 }
 
 void Scheduler::StartProcessing() {
   processingThread =
-      std::thread(ProcessingThread, ticksize, processingCapacity);
+      std::thread(ProcessingThread, ticksize, processingCapacity, simulationTicks);
 }
 
 void Scheduler::UpdateRoundNumber() {
@@ -132,7 +131,11 @@ void Scheduler::addPacket(int src, int pktlen) {
 
   flowFinishNumbers[src] = std::max(flowFinishNumbers[src], pkt.finishNumber);
 
-  Scheduler::queue.push(std::move(pkt));
+  if (queue.size() < queueCapacity) {
+    Scheduler::queue.push(std::move(pkt));
+  } else {
+    ; // Packet dropped here
+  }
 
   Scheduler::QueueNotEmpty.notify_one();
 }
@@ -141,4 +144,6 @@ Scheduler::~Scheduler() {
   for (int i = 0; i < numSrc; i++) {
     std::cout << numPackets[i] << " packets came from source #" << i << "\n";
   }
+  if(processingThread.joinable())
+    processingThread.join();
 }

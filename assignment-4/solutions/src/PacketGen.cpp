@@ -4,7 +4,7 @@
 namespace PacketGen
 {
     std::shared_ptr<std::mutex> PacketSource::schedmutex = std::make_shared<std::mutex>();
-    std::shared_ptr<Scheduler> PacketSource::sched = std::make_shared<Scheduler>(0, std::vector<float>(0), TICKSIZE, 0.0);
+    std::shared_ptr<Scheduler> PacketSource::sched = std::make_shared<Scheduler>(0, std::vector<float>(0), TICKSIZE, 0.0, 0, 0);
 
     // Constructor definition
     PacketSource::PacketSource(PacketSourceConfig conf) 
