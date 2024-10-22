@@ -1,9 +1,14 @@
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <set>
+#include <thread>
 
 #include "Scheduler.h"
+#include "Simulator.h"
+
+#define STEPSIZE (1000000ll)
 
 std::shared_ptr<std::mutex> Scheduler::schedmutex =
     std::make_shared<std::mutex>();
@@ -19,15 +24,36 @@ Scheduler::Scheduler(int numSrc, std::vector<float> wts, int ticksize,
     : processingCapacity(processingCapacity), ticksize(ticksize),
       queueCapacity(queueCapacity), simulationTicks(simulationTicks),
       numSrc(numSrc), numPackets(numSrc, 0), weights(wts),
-      flowFinishNumbers(numSrc, -1) {
+      flowFinishNumbers(numSrc, -1), toBeDropped(numSrc, 0),
+      pkts_generated(numSrc, 0), length_pkts_generated(numSrc, 0),
+      pkts_dropped(numSrc, 0), dropped_pkt_length(numSrc, 0),
+      sum_pkt_delays(numSrc, 0), total_length_transmitted(0) {
+
   roundNumber = 0.0;
   sumActiveWeights = 0.0;
   lastTrigger = std::nullopt;
+
+  // calculate fair allocation
+  double sum_weights = 0;
+  for (auto wt : wts) {
+    sum_weights += wt;
+    fair_allocation.push_back(wt);
+  }
+  for (auto &wt : fair_allocation)
+    wt /= sum_weights;
 }
 
 void Scheduler::StartProcessing() {
-  processingThread =
-      std::thread(ProcessingThread, ticksize, processingCapacity, simulationTicks);
+  processingThread = std::thread(ProcessingThread, ticksize, processingCapacity,
+                                 simulationTicks, this);
+  threadEndTime = std::chrono::steady_clock::now() +
+                  std::chrono::milliseconds(simulationTicks * ticksize +
+                                            BUFFER_TIME * 1000);
+
+  // start the metric thread also
+  metricThread =
+      std::thread(MetricThread, ticksize, separation_index_calculations, this,
+                  fair_allocation, simulationTicks);
 }
 
 void Scheduler::UpdateRoundNumber() {
@@ -55,7 +81,7 @@ void Scheduler::UpdateRoundNumber() {
               timenow - lastTrigger.value())
               .count() *
           1000 / ticksize;
-      if (printStats == 0)
+      if (printStats == STEPSIZE)
         std::cout << "Duration is " << durationInMillis << "\n";
       projectedRoundNumber =
           roundNumber + durationInMillis / (std::abs(sumActiveWeights) < 1e-3
@@ -67,7 +93,7 @@ void Scheduler::UpdateRoundNumber() {
     double sumWeights = 0.0;
     std::vector<std::pair<double, double>> sortedFlows;
     for (int src = 0; src < numSrc; src++)
-      if (flowFinishNumbers[src] > roundNumber) {
+      if (flowFinishNumbers[src] >= roundNumber) {
         sumWeights += weights[src];
         sortedFlows.push_back({flowFinishNumbers[src], weights[src]});
       }
@@ -107,7 +133,7 @@ void Scheduler::UpdateRoundNumber() {
 void Scheduler::addPacket(int src, int pktlen) {
   numPackets[src]++;
 
-  if (++printStats == 1) {
+  if (++printStats == STEPSIZE) {
     std::cout << "Round# =" << roundNumber << "\n";
     std::cout << "SumWeights =" << sumActiveWeights << "\n";
     for (int i = 0; i < numSrc; i++) {
@@ -117,6 +143,13 @@ void Scheduler::addPacket(int src, int pktlen) {
     printStats = 0;
   }
   UpdateRoundNumber();
+
+  //// update the stats ////
+
+  pkts_generated[src]++;
+  length_pkts_generated[src] += pktlen;
+
+  //////////////////////////
 
   Packet pkt{.sourceNumber = src,
              .length = pktlen,
@@ -134,7 +167,9 @@ void Scheduler::addPacket(int src, int pktlen) {
   if (queue.size() < queueCapacity) {
     Scheduler::queue.push(std::move(pkt));
   } else {
-    ; // Packet dropped here
+    pkts_dropped[src]++;
+    dropped_pkt_length[src] += pktlen;
+    queueCapacity++;
   }
 
   Scheduler::QueueNotEmpty.notify_one();
@@ -144,6 +179,11 @@ Scheduler::~Scheduler() {
   for (int i = 0; i < numSrc; i++) {
     std::cout << numPackets[i] << " packets came from source #" << i << "\n";
   }
-  if(processingThread.joinable())
-    processingThread.join();
+
+  if (processingThread.joinable()) {
+    std::this_thread::sleep_until(threadEndTime);
+    QueueNotEmpty.notify_all();
+    if (processingThread.joinable())
+      processingThread.join();
+  }
 }

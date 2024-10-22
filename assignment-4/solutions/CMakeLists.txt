@@ -11,6 +11,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Set debug mode
 set(CMAKE_BUILD_TYPE Debug)
 
+# Enable optimizations for Release builds
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
+
+
 # Include directories
 include_directories(include parser-lib/include)
 include_directories(include include)

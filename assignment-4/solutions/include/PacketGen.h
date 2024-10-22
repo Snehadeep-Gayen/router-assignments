@@ -37,7 +37,7 @@ namespace PacketGen
 
         // Scheduler-related variables
         static std::shared_ptr<std::mutex> schedmutex;
-        static std::shared_ptr<Scheduler> sched;
+        static Scheduler* sched;
 
     private:
         // Packet generation thread function
