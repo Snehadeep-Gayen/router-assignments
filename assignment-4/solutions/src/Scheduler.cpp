@@ -8,7 +8,7 @@
 #include "Scheduler.h"
 #include "Simulator.h"
 
-#define STEPSIZE (1000000ll)
+#define STEPSIZE (10000ll)
 
 std::shared_ptr<std::mutex> Scheduler::schedmutex =
     std::make_shared<std::mutex>();
@@ -25,7 +25,8 @@ Scheduler::Scheduler(int numSrc, std::vector<float> wts, int ticksize,
       queueCapacity(queueCapacity), simulationTicks(simulationTicks),
       numSrc(numSrc), numPackets(numSrc, 0), weights(wts),
       flowFinishNumbers(numSrc, -1), toBeDropped(numSrc, 0),
-      pkts_generated(numSrc, 0), length_pkts_generated(numSrc, 0),
+      pkts_generated(numSrc, 0), pkts_transmitted(numSrc, 0),
+      length_pkts_generated(numSrc, 0), length_pkts_transmitted(numSrc, 0),
       pkts_dropped(numSrc, 0), dropped_pkt_length(numSrc, 0),
       sum_pkt_delays(numSrc, 0), total_length_transmitted(0) {
 
@@ -35,10 +36,13 @@ Scheduler::Scheduler(int numSrc, std::vector<float> wts, int ticksize,
 
   // calculate fair allocation
   double sum_weights = 0;
+  std::cout << "Weights are : ";
   for (auto wt : wts) {
+    std::cout << wt << " ";
     sum_weights += wt;
     fair_allocation.push_back(wt);
   }
+  std::cout << "\n";
   for (auto &wt : fair_allocation)
     wt /= sum_weights;
 }
@@ -169,7 +173,10 @@ void Scheduler::addPacket(int src, int pktlen) {
   } else {
     pkts_dropped[src]++;
     dropped_pkt_length[src] += pktlen;
+    
     queueCapacity++;
+    toBeDropped[src]++;
+    Scheduler::queue.push(std::move(pkt));
   }
 
   Scheduler::QueueNotEmpty.notify_one();

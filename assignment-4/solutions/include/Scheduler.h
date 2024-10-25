@@ -12,6 +12,7 @@
 #include <optional>
 #include <queue>
 #include <ratio>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -58,24 +59,38 @@ public:
     int64_t total_delay = 0;
     for (auto pkt_delay_sum_per_src : sum_pkt_delays)
       total_delay += pkt_delay_sum_per_src;
-    int64_t total_number_packets = 0;
+    int64_t total_number_packets_transmitted = 0;
     for (int i = 0; i < numSrc; i++)
-      total_number_packets += pkts_generated[i] - pkts_dropped[i];
-    st.average_pkt_delay = ((double)total_delay) / total_number_packets;
+      total_number_packets_transmitted += pkts_transmitted[i];
+    if (total_number_packets_transmitted != 0)
+      st.average_pkt_delay =
+          ((double)total_delay) / total_number_packets_transmitted;
 
+    st.server_utilisation =
+        total_length_transmitted / (processingCapacity * simulationTicks);
+
+    int64_t total_pkts_generated = 0;
+    st.packet_drop_prob = 0.0;
     // average packet drop probab
-    for (int i = 0; i < numSrc; i++)
+    for (int i = 0; i < numSrc; i++) {
       st.packet_drop_prob += pkts_dropped[i];
-    st.packet_drop_prob /= total_number_packets;
+      total_pkts_generated += pkts_generated[i];
+    }
+    st.packet_drop_prob /= total_pkts_generated;
 
     // for each source
+    int64_t total_pkt_length_transmitted = 0;
     for (int i = 0; i < numSrc; i++) {
       Stats::SourceMetrics sm;
       sm.total_packet_length_generated = length_pkts_generated[i];
-      sm.total_packet_length_transmitted =
-          sm.total_packet_length_generated - dropped_pkt_length[i];
+      sm.total_packet_length_transmitted = length_pkts_transmitted[i];
+      // sm.total_packet_length_generated - dropped_pkt_length[i];
+      total_pkt_length_transmitted += sm.total_packet_length_transmitted;
       sm.packet_drop_prob = ((double)pkts_dropped[i]) / pkts_generated[i];
-      sm.averag_pkt_delay = (sum_pkt_delays[i]) / pkts_generated[i];
+      if (pkts_transmitted[i] != 0)
+        sm.averag_pkt_delay = (sum_pkt_delays[i]) / (pkts_transmitted[i]);
+      else
+        sm.averag_pkt_delay = 0;
       sm.fraction_allocated = sm.total_packet_length_transmitted /
                               (simulationTicks * processingCapacity);
       sm.percentage_transmitted =
@@ -125,8 +140,7 @@ private:
                            Scheduler *schedptr,
                            const std::vector<double> fairAllocation,
                            int simulationTicks) {
-    std::vector<int64_t> pkt_lengths_generated;
-    std::vector<int64_t> pkt_lengths_dropped;
+    std::vector<int64_t> pkt_lengths_transmitted;
     std::vector<double> transmitted;
     int64_t total_length_transmitted;
 
@@ -146,36 +160,22 @@ private:
       // acquire the lock and copy te required data
       Scheduler::schedmutex->lock();
       total_length_transmitted = schedptr->total_length_transmitted;
-      pkt_lengths_generated = schedptr->length_pkts_generated;
-      pkt_lengths_dropped = schedptr->dropped_pkt_length;
+      pkt_lengths_transmitted = schedptr->length_pkts_transmitted;
       Scheduler::schedmutex->unlock();
 
-      assert(pkt_lengths_dropped.size() == pkt_lengths_generated.size());
-      int numSrc = pkt_lengths_dropped.size();
-
-      for (int i = 0; i < numSrc; i++)
-        std::cout << "pkt_lengths_generated[" << i << "] = " << pkt_lengths_generated[i] << "\n";
-
-      for (int i = 0; i < numSrc; i++)
-        std::cout << "pkt_lengths_dropped[" << i << "] = " << pkt_lengths_dropped[i] << "\n";
+      int numSrc = pkt_lengths_transmitted.size();
 
       transmitted.clear();
-      for (int i=0; i < numSrc; i++)
-        transmitted.push_back(pkt_lengths_generated[i] -
-                              pkt_lengths_dropped[i]);
+      for (int i = 0; i < numSrc; i++)
+        transmitted.push_back(pkt_lengths_transmitted[i]);
 
       for (int i = 0; i < numSrc; i++)
         transmitted[i] /= total_length_transmitted;
 
-      for (int i = 0; i < numSrc; i++)
-        std::cout << "transmitted[" << i << "] = " << transmitted[i] << "\n";
-
       double jfi = 0;
       for (auto i : transmitted)
         jfi += i;
-      std::cout << "jfi1: " << jfi << "\n";
       jfi = (jfi * jfi) / transmitted.size();
-      std::cout << "jfi2: " << jfi << "\n";
       double denominator = 0.0;
       for (auto i : transmitted)
         denominator += i * i;
@@ -201,34 +201,62 @@ private:
   static void ProcessingThread(const int ticksize, const int processingCapacity,
                                const int simulationTicks, Scheduler *schedptr) {
 
-    std::chrono::milliseconds transmissionTime;
+    std::chrono::microseconds transmissionTime;
     std::chrono::steady_clock::time_point endTime =
         std::chrono::steady_clock::now() +
         std::chrono::milliseconds(ticksize * simulationTicks);
+    std::cout << "Started\n";
+    auto ten_us = std::chrono::microseconds(10);
     while (std::chrono::steady_clock::now() < endTime) {
 
       std::unique_lock<std::mutex> lk(*Scheduler::schedmutex);
 
-      if (queue.empty()) {
-        Scheduler::QueueNotEmpty.wait_until(lk, endTime, []() {
-          return !queue.empty();
-        }); // check if the function is correct or not
+      while (queue.empty() && std::chrono::steady_clock::now() < endTime) {
+        Scheduler::QueueNotEmpty.wait_for(
+            lk, std::chrono::milliseconds(1), [&]() {
+              return !queue.empty();
+            }); // check if the function is correct or not
       }
 
-      Packet pkt = queue.top();
-      queue.pop();
+      if (queue.empty()) {
+        [[unlikely]] lk.unlock();
+        break;
+      }
 
-      if (schedptr->toBeDropped[pkt.sourceNumber] > 0) {
-        schedptr->toBeDropped[pkt.sourceNumber]--;
-        schedptr->queueCapacity--;
+      Packet pkt;
+
+      bool transmit = false;
+      while (!queue.empty()) {
+        pkt = queue.top();
+        queue.pop();
+
+        if (schedptr->toBeDropped[pkt.sourceNumber] > 0) {
+          schedptr->toBeDropped[pkt.sourceNumber]--;
+          schedptr->queueCapacity--;
+          continue;
+        } else {
+          transmit = true;
+          break;
+        }
+      }
+      if (!transmit) {
         continue;
       }
 
+      // std::string nextPacketStats;
+      // if (!queue.empty())
+      //   nextPacketStats = "[" + std::to_string(queue.top().finishNumber) +
+      //                     ", Q:" + std::to_string(queue.size()) + "]";
+      // std::cout << nextPacketStats + "{" << pkt.sourceNumber << ","
+      //           << pkt.finishNumber << "}, ";
+
       schedptr->total_length_transmitted += pkt.length;
+      schedptr->length_pkts_transmitted[pkt.sourceNumber] += pkt.length;
+      schedptr->pkts_transmitted[pkt.sourceNumber]++;
 
       pkt.deqTime = std::chrono::steady_clock::now();
-      transmissionTime =
-          std::chrono::milliseconds(ticksize * pkt.length / processingCapacity);
+      transmissionTime = std::chrono::microseconds(
+          1000 * ticksize * pkt.length / processingCapacity);
       pkt.egressTime = pkt.deqTime + transmissionTime;
 
       schedptr->sum_pkt_delays[pkt.sourceNumber] +=
@@ -237,7 +265,8 @@ private:
           static_cast<double>(pkt.length) / processingCapacity; // waiting time
 
       lk.unlock();
-      std::this_thread::sleep_for(transmissionTime);
+      if (transmissionTime > ten_us)
+        std::this_thread::sleep_for(transmissionTime - ten_us);
     }
   }
 
@@ -248,8 +277,11 @@ private:
 
   std::vector<int64_t>
       pkts_generated; // number of packets generated for each flow
+  std::vector<int64_t> pkts_transmitted; // packets transmitted of each flow
   std::vector<int64_t>
       length_pkts_generated; // number of packets generated for each flow
+  std::vector<int64_t>
+      length_pkts_transmitted; // number of packets generated for each flow
   std::vector<int64_t> pkts_dropped; // number of packets dropped for each flow
   std::vector<int64_t>
       dropped_pkt_length; // sum of lengths of all dropped packets for each flow
@@ -259,7 +291,7 @@ private:
   int64_t total_length_transmitted;
   std::vector<double> fair_allocation; // as fractions
   std::queue<double> jains_fairness_idx, rfb;
-  const int separation_index_calculations = 100;
+  const int separation_index_calculations = 10000;
 
   //////////////
 

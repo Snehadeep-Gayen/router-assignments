@@ -19,6 +19,6 @@ struct PacketFinishComparator
 {
     bool operator()(const Packet& lhs, const Packet& rhs)
     {
-        return lhs.finishNumber < rhs.finishNumber;
+        return lhs.finishNumber > rhs.finishNumber; // MAX-HEAP!
     }
 };

@@ -18,7 +18,7 @@ namespace Simulation{
 #define SETUP_TIME (2)
 #define BUFFER_TIME (2)
 // number of milliseconds in one tick
-#define TICKSIZE (10)
+#define TICKSIZE (100)
 
     struct Config
     {
