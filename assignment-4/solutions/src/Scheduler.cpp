@@ -36,13 +36,13 @@ Scheduler::Scheduler(int numSrc, std::vector<float> wts, int ticksize,
 
   // calculate fair allocation
   double sum_weights = 0;
-  std::cout << "Weights are : ";
+  // std::cout << "Weights are : ";
   for (auto wt : wts) {
-    std::cout << wt << " ";
+    // std::cout << wt << " ";
     sum_weights += wt;
     fair_allocation.push_back(wt);
   }
-  std::cout << "\n";
+  // std::cout << "\n";
   for (auto &wt : fair_allocation)
     wt /= sum_weights;
 }
@@ -68,7 +68,7 @@ void Scheduler::UpdateRoundNumber() {
     if (all_inactive) {
       roundNumber = 0;
       if (std::abs(sumActiveWeights) > 1e-3) {
-        std::cout << sumActiveWeights << "\n";
+        // std::cout << sumActiveWeights << "\n";
         exit(0);
       }
       sumActiveWeights = 0.0;
@@ -86,7 +86,7 @@ void Scheduler::UpdateRoundNumber() {
               .count() *
           1000 / ticksize;
       if (printStats == STEPSIZE)
-        std::cout << "Duration is " << durationInMillis << "\n";
+        // std::cout << "Duration is " << durationInMillis << "\n";
       projectedRoundNumber =
           roundNumber + durationInMillis / (std::abs(sumActiveWeights) < 1e-3
                                                 ? (INFINITY)
@@ -103,8 +103,8 @@ void Scheduler::UpdateRoundNumber() {
       }
     std::sort(sortedFlows.begin(), sortedFlows.end());
     if (std::abs(sumWeights - sumActiveWeights) > 1e-3) {
-      std::cout << "Difference in weights\n";
-      std::cout << sumActiveWeights << " " << sumWeights << "\n";
+      // std::cout << "Difference in weights\n";
+      // std::cout << sumActiveWeights << " " << sumWeights << "\n";
       exit(0);
     }
 
@@ -137,15 +137,15 @@ void Scheduler::UpdateRoundNumber() {
 void Scheduler::addPacket(int src, int pktlen) {
   numPackets[src]++;
 
-  if (++printStats == STEPSIZE) {
-    std::cout << "Round# =" << roundNumber << "\n";
-    std::cout << "SumWeights =" << sumActiveWeights << "\n";
-    for (int i = 0; i < numSrc; i++) {
-      std::cout << "Finish Number for source#" << i << " is "
-                << flowFinishNumbers[i] << "\n";
-    }
-    printStats = 0;
-  }
+  // if (++printStats == STEPSIZE) {
+  //   std::cout << "Round# =" << roundNumber << "\n";
+  //   std::cout << "SumWeights =" << sumActiveWeights << "\n";
+  //   for (int i = 0; i < numSrc; i++) {
+  //     std::cout << "Finish Number for source#" << i << " is "
+  //               << flowFinishNumbers[i] << "\n";
+  //   }
+  //   printStats = 0;
+  // }
   UpdateRoundNumber();
 
   //// update the stats ////
@@ -183,9 +183,9 @@ void Scheduler::addPacket(int src, int pktlen) {
 }
 
 Scheduler::~Scheduler() {
-  for (int i = 0; i < numSrc; i++) {
-    std::cout << numPackets[i] << " packets came from source #" << i << "\n";
-  }
+  // for (int i = 0; i < numSrc; i++) {
+  //   std::cout << numPackets[i] << " packets came from source #" << i << "\n";
+  // }
 
   if (processingThread.joinable()) {
     std::this_thread::sleep_until(threadEndTime);

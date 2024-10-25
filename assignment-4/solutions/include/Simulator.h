@@ -56,7 +56,7 @@ namespace Simulation{
                    << "    " << stats.rfb.front() << "\n";
                 stats.jfi.pop();
                 stats.rfb.pop();
-                time_unit += 10000; // Assuming RFB and JFI are computed every
+                time_unit += Scheduler::separation_index_calculations; // Assuming RFB and JFI are computed every
                                     // 10000 time units
               }
 

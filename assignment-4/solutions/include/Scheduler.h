@@ -49,6 +49,8 @@ public:
 
   ~Scheduler();
 
+  static const int separation_index_calculations = 100;
+
   Stats GetStats() {
     Stats st;
     st.jfi = jains_fairness_idx;
@@ -180,7 +182,7 @@ private:
       for (auto i : transmitted)
         denominator += i * i;
       jfi /= denominator;
-      std::cout << "jfi3: " << jfi << "\n";
+      // std::cout << "jfi3: " << jfi << "\n";
       schedptr->jains_fairness_idx.push(jfi);
 
       for (int i = 0; i < transmitted.size(); i++)
@@ -205,7 +207,7 @@ private:
     std::chrono::steady_clock::time_point endTime =
         std::chrono::steady_clock::now() +
         std::chrono::milliseconds(ticksize * simulationTicks);
-    std::cout << "Started\n";
+    // std::cout << "Started\n";
     auto ten_us = std::chrono::microseconds(10);
     while (std::chrono::steady_clock::now() < endTime) {
 
@@ -291,7 +293,6 @@ private:
   int64_t total_length_transmitted;
   std::vector<double> fair_allocation; // as fractions
   std::queue<double> jains_fairness_idx, rfb;
-  const int separation_index_calculations = 10000;
 
   //////////////
 
