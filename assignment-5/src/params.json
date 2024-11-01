@@ -1,0 +1,14 @@
+[
+    {
+      "flag": "i",
+      "type": "string"
+    },
+    {
+      "flag": "p",
+      "type": "string"
+    },
+    {
+      "flag": "o",
+      "type": "string"
+    }
+]
