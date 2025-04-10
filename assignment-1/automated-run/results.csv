@@ -1,0 +1,166 @@
+/////////////////////////// CORRECTED PROBABILITIES ///////////////////////////
+
+
+/////////////////////// ARPA NET /////////////////////////
+
+
+
+//////////////// CONSTANT BANDWIDTH ////////////////
+
+connections_100_ARPANET-Topo-0.064-0.064-0.064.txt, dist, pessimistic, 0.97
+connections_200_ARPANET-Topo-0.064-0.064-0.064.txt, dist, pessimistic, 0.87
+connections_300_ARPANET-Topo-0.064-0.064-0.064.txt, dist, pessimistic, 0.73
+
+//////////////// BURSTY TRAFFIC ////////////////////
+
+////////// OPTIMISTIC //////////
+connections_100_ARPANET-Topo-0.001-0.016-0.16.txt, dist, optimistic, 0.98
+connections_300_ARPANET-Topo-0.001-0.018-0.18.txt, dist, optimistic, 0.74
+connections_200_ARPANET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.012-0.12.txt, dist, optimistic, 0.93
+connections_100_ARPANET-Topo-0.001-0.018-0.18.txt, dist, optimistic, 0.91
+connections_100_ARPANET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 0.98
+connections_100_ARPANET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.02-0.2.txt, dist, optimistic, 0.95
+connections_200_ARPANET-Topo-0.001-0.018-0.18.txt, dist, optimistic, 0.80
+connections_200_ARPANET-Topo-0.001-0.014-0.14.txt, dist, optimistic, 0.89
+connections_100_ARPANET-Topo-0.001-0.012-0.12.txt, dist, optimistic, 0.97
+connections_300_ARPANET-Topo-0.001-0.014-0.14.txt, dist, optimistic, 0.76
+connections_300_ARPANET-Topo-0.001-0.016-0.16.txt, dist, optimistic, 0.72
+connections_100_ARPANET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 0.90
+connections_200_ARPANET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 0.99
+connections_200_ARPANET-Topo-0.001-0.016-0.16.txt, dist, optimistic, 0.83
+connections_100_ARPANET-Topo-0.001-0.014-0.14.txt, dist, optimistic, 0.97
+connections_300_ARPANET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 0.95
+connections_300_ARPANET-Topo-0.001-0.012-0.12.txt, dist, optimistic, 0.82
+connections_300_ARPANET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.02-0.2.txt, dist, optimistic, 0.82
+connections_300_ARPANET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 0.85
+connections_300_ARPANET-Topo-0.001-0.02-0.2.txt, dist, optimistic, 0.68
+
+/////////// PESSIMISTIC ///////////
+connections_100_ARPANET-Topo-0.001-0.016-0.16.txt, dist, pessimistic, 0.81
+connections_300_ARPANET-Topo-0.001-0.018-0.18.txt, dist, pessimistic, 0.46
+connections_200_ARPANET-Topo-0.001-0.002-0.02.txt, dist, pessimistic, 1.00
+connections_200_ARPANET-Topo-0.001-0.012-0.12.txt, dist, pessimistic, 0.68
+connections_100_ARPANET-Topo-0.001-0.018-0.18.txt, dist, pessimistic, 0.71
+connections_100_ARPANET-Topo-0.001-0.01-0.1.txt, dist, pessimistic, 0.93
+connections_200_ARPANET-Topo-0.001-0.004-0.04.txt, dist, pessimistic, 0.94
+connections_200_ARPANET-Topo-0.001-0.01-0.1.txt, dist, pessimistic, 0.78
+connections_100_ARPANET-Topo-0.001-0.002-0.02.txt, dist, pessimistic, 1.00
+connections_100_ARPANET-Topo-0.001-0.02-0.2.txt, dist, pessimistic, 0.76
+connections_200_ARPANET-Topo-0.001-0.018-0.18.txt, dist, pessimistic, 0.50
+connections_200_ARPANET-Topo-0.001-0.014-0.14.txt, dist, pessimistic, 0.64
+connections_100_ARPANET-Topo-0.001-0.012-0.12.txt, dist, pessimistic, 0.83
+connections_300_ARPANET-Topo-0.001-0.014-0.14.txt, dist, pessimistic, 0.50
+connections_300_ARPANET-Topo-0.001-0.016-0.16.txt, dist, pessimistic, 0.48
+connections_100_ARPANET-Topo-0.001-0.008-0.08.txt, dist, pessimistic, 0.97
+connections_100_ARPANET-Topo-0.001-0.006-0.06.txt, dist, pessimistic, 0.99
+connections_300_ARPANET-Topo-0.001-0.008-0.08.txt, dist, pessimistic, 0.66
+connections_200_ARPANET-Topo-0.001-0.008-0.08.txt, dist, pessimistic, 0.79
+connections_200_ARPANET-Topo-0.001-0.016-0.16.txt, dist, pessimistic, 0.60
+connections_100_ARPANET-Topo-0.001-0.014-0.14.txt, dist, pessimistic, 0.73
+connections_300_ARPANET-Topo-0.001-0.006-0.06.txt, dist, pessimistic, 0.70
+connections_300_ARPANET-Topo-0.001-0.012-0.12.txt, dist, pessimistic, 0.53
+connections_300_ARPANET-Topo-0.001-0.004-0.04.txt, dist, pessimistic, 0.92
+connections_200_ARPANET-Topo-0.001-0.006-0.06.txt, dist, pessimistic, 0.88
+connections_200_ARPANET-Topo-0.001-0.02-0.2.txt, dist, pessimistic, 0.55
+connections_300_ARPANET-Topo-0.001-0.002-0.02.txt, dist, pessimistic, 0.99
+connections_100_ARPANET-Topo-0.001-0.004-0.04.txt, dist, pessimistic, 1.00
+connections_300_ARPANET-Topo-0.001-0.01-0.1.txt, dist, pessimistic, 0.61
+connections_300_ARPANET-Topo-0.001-0.02-0.2.txt, dist, pessimistic, 0.42
+
+
+
+
+////////////////////////// CORRECTED PROBABILITIES ///////////////////////////
+
+
+/////////////////////// NSF NET /////////////////////////
+
+//////////////// CONSTANT BANDWIDTH ////////////////
+
+connections_100_NSFNET-Topo-0.064-0.064-0.064.txt, dist, pessimistic, 0.98
+connections_200_NSFNET-Topo-0.064-0.064-0.064.txt, dist, pessimistic, 0.73
+connections_300_NSFNET-Topo-0.064-0.064-0.064.txt, dist, pessimistic, 0.65
+
+//////////////// BURSTY TRAFFIC ////////////////////
+
+////////// OPTIMISTIC //////////
+
+
+connections_300_NSFNET-Topo-0.001-0.012-0.12.txt, dist, optimistic, 0.67
+connections_200_NSFNET-Topo-0.001-0.02-0.2.txt, dist, optimistic, 0.68
+connections_300_NSFNET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 0.77
+connections_300_NSFNET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_100_NSFNET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 1.00
+connections_300_NSFNET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_300_NSFNET-Topo-0.001-0.014-0.14.txt, dist, optimistic, 0.68
+connections_200_NSFNET-Topo-0.001-0.018-0.18.txt, dist, optimistic, 0.74
+connections_300_NSFNET-Topo-0.001-0.02-0.2.txt, dist, optimistic, 0.58
+connections_200_NSFNET-Topo-0.001-0.014-0.14.txt, dist, optimistic, 0.74
+connections_300_NSFNET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 0.92
+connections_300_NSFNET-Topo-0.001-0.016-0.16.txt, dist, optimistic, 0.57
+connections_100_NSFNET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 1.00
+connections_100_NSFNET-Topo-0.001-0.014-0.14.txt, dist, optimistic, 0.87
+connections_200_NSFNET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 0.94
+connections_100_NSFNET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_100_NSFNET-Topo-0.001-0.018-0.18.txt, dist, optimistic, 0.94
+connections_200_NSFNET-Topo-0.001-0.006-0.06.txt, dist, optimistic, 0.96
+connections_100_NSFNET-Topo-0.001-0.016-0.16.txt, dist, optimistic, 0.88
+connections_100_NSFNET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_200_NSFNET-Topo-0.001-0.004-0.04.txt, dist, optimistic, 1.00
+connections_200_NSFNET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 0.85
+connections_200_NSFNET-Topo-0.001-0.002-0.02.txt, dist, optimistic, 1.00
+connections_100_NSFNET-Topo-0.001-0.012-0.12.txt, dist, optimistic, 0.96
+connections_200_NSFNET-Topo-0.001-0.016-0.16.txt, dist, optimistic, 0.77
+connections_100_NSFNET-Topo-0.001-0.02-0.2.txt, dist, optimistic, 0.80
+connections_300_NSFNET-Topo-0.001-0.008-0.08.txt, dist, optimistic, 0.82
+connections_100_NSFNET-Topo-0.001-0.01-0.1.txt, dist, optimistic, 0.98
+connections_200_NSFNET-Topo-0.001-0.012-0.12.txt, dist, optimistic, 0.85
+connections_300_NSFNET-Topo-0.001-0.018-0.18.txt, dist, optimistic, 0.60
+
+
+
+
+
+/////////// PESSIMISTIC ///////////
+
+
+connections_300_NSFNET-Topo-0.001-0.012-0.12.txt, dist, pessimistic, 0.49
+connections_200_NSFNET-Topo-0.001-0.02-0.2.txt, dist, pessimistic, 0.46
+connections_300_NSFNET-Topo-0.001-0.01-0.1.txt, dist, pessimistic, 0.55
+connections_300_NSFNET-Topo-0.001-0.004-0.04.txt, dist, pessimistic, 0.77
+connections_100_NSFNET-Topo-0.001-0.006-0.06.txt, dist, pessimistic, 0.93
+connections_300_NSFNET-Topo-0.001-0.002-0.02.txt, dist, pessimistic, 0.96
+connections_300_NSFNET-Topo-0.001-0.014-0.14.txt, dist, pessimistic, 0.46
+connections_200_NSFNET-Topo-0.001-0.018-0.18.txt, dist, pessimistic, 0.48
+connections_300_NSFNET-Topo-0.001-0.02-0.2.txt, dist, pessimistic, 0.34
+connections_200_NSFNET-Topo-0.001-0.014-0.14.txt, dist, pessimistic, 0.57
+connections_300_NSFNET-Topo-0.001-0.006-0.06.txt, dist, pessimistic, 0.67
+connections_300_NSFNET-Topo-0.001-0.016-0.16.txt, dist, pessimistic, 0.39
+connections_100_NSFNET-Topo-0.001-0.008-0.08.txt, dist, pessimistic, 0.88
+connections_100_NSFNET-Topo-0.001-0.014-0.14.txt, dist, pessimistic, 0.63
+connections_200_NSFNET-Topo-0.001-0.008-0.08.txt, dist, pessimistic, 0.67
+connections_100_NSFNET-Topo-0.001-0.002-0.02.txt, dist, pessimistic, 1.00
+connections_100_NSFNET-Topo-0.001-0.018-0.18.txt, dist, pessimistic, 0.72
+connections_200_NSFNET-Topo-0.001-0.006-0.06.txt, dist, pessimistic, 0.74
+connections_100_NSFNET-Topo-0.001-0.016-0.16.txt, dist, pessimistic, 0.68
+connections_100_NSFNET-Topo-0.001-0.004-0.04.txt, dist, pessimistic, 1.00
+connections_200_NSFNET-Topo-0.001-0.004-0.04.txt, dist, pessimistic, 0.93
+connections_200_NSFNET-Topo-0.001-0.01-0.1.txt, dist, pessimistic, 0.65
+connections_200_NSFNET-Topo-0.001-0.002-0.02.txt, dist, pessimistic, 1.00
+connections_100_NSFNET-Topo-0.001-0.012-0.12.txt, dist, pessimistic, 0.76
+connections_200_NSFNET-Topo-0.001-0.016-0.16.txt, dist, pessimistic, 0.55
+connections_100_NSFNET-Topo-0.001-0.02-0.2.txt, dist, pessimistic, 0.59
+connections_300_NSFNET-Topo-0.001-0.008-0.08.txt, dist, pessimistic, 0.58
+connections_100_NSFNET-Topo-0.001-0.01-0.1.txt, dist, pessimistic, 0.73
+connections_200_NSFNET-Topo-0.001-0.012-0.12.txt, dist, pessimistic, 0.65
+connections_300_NSFNET-Topo-0.001-0.018-0.18.txt, dist, pessimistic, 0.35
